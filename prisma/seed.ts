@@ -1,4 +1,4 @@
-import { PrismaClient, Role, Condition } from '@/generated/prisma';
+import { PrismaClient, Role, Condition } from '../src/generated/prisma';
 import { hash } from 'bcrypt';
 import * as config from '../config/settings.development.json';
 
