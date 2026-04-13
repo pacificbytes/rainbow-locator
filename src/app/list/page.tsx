@@ -36,7 +36,7 @@ const ListPage = async () => {
                 </tr>
               </thead>
               <tbody>
-                {stuff.map((item) => (
+                {stuff.map((item: any) => (
                   <StuffItem key={item.id} {...item} />
                 ))}
               </tbody>

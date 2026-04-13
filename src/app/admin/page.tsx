@@ -31,7 +31,7 @@ const AdminPage = async () => {
                 </tr>
               </thead>
               <tbody>
-                {stuff.map((item) => (
+                {stuff.map((item: any) => (
                   <StuffItemAdmin key={item.id} {...item} />
                 ))}
               </tbody>
@@ -49,7 +49,7 @@ const AdminPage = async () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {users.map((user: any) => (
                   <tr key={user.id}>
                     <td>{user.email}</td>
                     <td>{user.role}</td>
