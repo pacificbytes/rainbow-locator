@@ -44,7 +44,7 @@ next-env.d.ts
 .idea
 
 .env
-
+/generated/prisma
 
 # installed packages
 node_modules/
@@ -57,3 +57,4 @@ package-lock.json
 /playwright/.cache/
 /playwright/.auth/
 tests/playwright-auth-sessions/
+.env*.local

@@ -1,32 +1,44 @@
 import { notFound } from 'next/navigation';
-import { Stuff } from '@/generated/prisma';
+import { Item } from '@prisma/client';
 import { loggedInProtectedPage } from '@/lib/page-protection';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
-import EditStuffForm from '@/components/EditStuffForm';
+import EditItemForm from '@/components/EditItemForm';
 
-export default async function EditStuffPage({ params }: { params: { id: string | string[] } }) {
-  const { id } = await params;
+export const dynamic = 'force-dynamic';
+
+export default async function EditItemPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const id = params.id;
   // Protect the page, only logged in users can access it.
   const session = await auth();
   loggedInProtectedPage(
     session as {
-      user: { email: string; id: string; name: string };
+      user: { email: string; id: string; name: string; role: string };
     } | null,
   );
-  const editID: number = +id;
-  const stuff: Stuff | null = await prisma.stuff.findUnique({
+
+  const item: Item | null = await prisma.item.findUnique({
     where: {
-      id: editID,
+      id: id,
     },
   });
-  if (!stuff) {
+
+  if (!item) {
     return notFound();
+  }
+
+  // Only owner or admin can edit
+  const isOwner = session?.user?.id === item.ownerId;
+  const isAdmin = session?.user?.role === 'ADMIN';
+
+  if (!isOwner && !isAdmin) {
+    return notFound(); // Or redirect to not-authorized
   }
 
   return (
     <main>
-      <EditStuffForm stuff={stuff} />
+      <EditItemForm item={item} />
     </main>
   );
 }

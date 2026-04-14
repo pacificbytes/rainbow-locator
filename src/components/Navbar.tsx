@@ -8,36 +8,43 @@ import { BoxArrowRight, Lock, PersonFill, PersonPlusFill } from 'react-bootstrap
 const NavBar: React.FC = () => {
   const { data: session, status } = useSession();
   const pathName = usePathname();
-  if (status === 'loading') return null;
+  
   const currentUser = session?.user?.email;
   const role = session?.user?.role;
+  const isLoading = status === 'loading';
+
   return (
     <Navbar bg="light" expand="lg">
       <Container>
-        <Navbar.Brand href="/">Next.js Application Template</Navbar.Brand>
+        <Navbar.Brand href="/">Lost and Found</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto justify-content-start">
-            {currentUser && (
+            {!isLoading && currentUser && (
               <>
-                <Nav.Link id="add-stuff-nav" href="/add" active={pathName === '/add'}>
-                  Add Stuff
+                <Nav.Link id="report-item-nav" href="/report" active={pathName === '/report'}>
+                  Report Item
                 </Nav.Link>
-                <Nav.Link id="list-stuff-nav" href="/list" active={pathName === '/list'}>
-                  List Stuff
+                <Nav.Link id="browse-items-nav" href="/items" active={pathName === '/items'}>
+                  Browse Items
+                </Nav.Link>
+                <Nav.Link id="my-stuff-nav" href="/my-stuff" active={pathName === '/my-stuff'}>
+                  My Stuff
                 </Nav.Link>
               </>
             )}
-            {currentUser && role === 'ADMIN' && (
-              <Nav.Link id="admin-stuff-nav" href="/admin" active={pathName === '/admin'}>
-                Admin
+            {!isLoading && currentUser && role === 'ADMIN' && (
+              <Nav.Link id="admin-dashboard-nav" href="/admin" active={pathName?.startsWith('/admin')}>
+                Admin Dashboard
               </Nav.Link>
             )}
           </Nav>
           <Nav>
-            {session ? (
+            {isLoading ? (
+              <Nav.Link disabled>Loading...</Nav.Link>
+            ) : session ? (
               <NavDropdown id="login-dropdown" title={currentUser}>
-                <NavDropdown.Item id="login-dropdown-sign-out" href="/api/auth/signout">
+                <NavDropdown.Item id="login-dropdown-sign-out" href="/auth/signout">
                   <BoxArrowRight />
                   Sign Out
                 </NavDropdown.Item>

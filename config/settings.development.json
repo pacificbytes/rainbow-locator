@@ -1,12 +1,44 @@
 {
   "defaultAccounts": [
-    { "email": "admin@foo.com", "password": "changeme", "role": "ADMIN" },
-    { "email": "john@foo.com", "password": "changeme" }
+    { "name": "Admin User", "email": "admin@foo.com", "password": "changeme", "role": "ADMIN" },
+    { "name": "John Doe", "email": "john@foo.com", "password": "changeme", "role": "USER" }
   ],
-  "defaultData": [
-    { "name": "Basket", "quantity": 3, "owner": "john@foo.com", "condition": "excellent" },
-    { "name": "Bicycle", "quantity": 2, "owner": "john@foo.com", "condition": "poor" },
-    { "name": "Banana", "quantity": 2, "owner": "admin@foo.com", "condition": "good" },
-    { "name": "Boogie Board", "quantity": 2, "owner": "admin@foo.com", "condition": "excellent" }
+  "defaultItems": [
+    {
+      "title": "Lost Wallet",
+      "description": "A black leather wallet with some cash and IDs.",
+      "category": "Personal Effects",
+      "type": "lost",
+      "location": "Campus Center",
+      "date": "2023-10-01T10:00:00Z",
+      "owner": "john@foo.com"
+    },
+    {
+      "title": "Found Keys",
+      "description": "A set of keys with a blue keychain.",
+      "category": "Accessories",
+      "type": "found",
+      "location": "Library Second Floor",
+      "date": "2023-10-02T14:30:00Z",
+      "owner": "admin@foo.com"
+    },
+    {
+      "title": "Lost iPhone 13",
+      "description": "Blue iPhone 13 in a clear case.",
+      "category": "Electronics",
+      "type": "lost",
+      "location": "Student Union Cafeteria",
+      "date": "2023-10-03T12:15:00Z",
+      "owner": "john@foo.com"
+    },
+    {
+      "title": "Found Water Bottle",
+      "description": "Hydro Flask, white, 32oz.",
+      "category": "Miscellaneous",
+      "type": "found",
+      "location": "Gym Locker Room",
+      "date": "2023-10-04T09:00:00Z",
+      "owner": "admin@foo.com"
+    }
   ]
 }

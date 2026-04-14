@@ -8,15 +8,16 @@ import { Card, Col, Container, Button, Form, Row } from 'react-bootstrap';
 import { createUser } from '@/lib/dbActions';
 
 type SignUpForm = {
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  // acceptTerms: boolean;
 };
 
 /** The sign up page. */
 const SignUp = () => {
   const validationSchema = Yup.object().shape({
+    name: Yup.string().required('Name is required'),
     email: Yup.string().required('Email is required').email('Email is invalid'),
     password: Yup.string()
       .required('Password is required')
@@ -38,11 +39,14 @@ const SignUp = () => {
 
   const onSubmit = async (data: SignUpForm) => {
     // console.log(JSON.stringify(data, null, 2));
-    await createUser(data);
-    // After creating, signIn with redirect to the add page
-    await signIn('credentials', { callbackUrl: '/add', ...data });
+    await createUser({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    });
+    // After creating, signIn with redirect to the home page
+    await signIn('credentials', { callbackUrl: '/', ...data });
   };
-
   return (
     <main>
       <Container>
@@ -52,6 +56,16 @@ const SignUp = () => {
             <Card>
               <Card.Body>
                 <Form onSubmit={handleSubmit(onSubmit)}>
+                  <Form.Group className="form-group">
+                    <Form.Label>Name</Form.Label>
+                    <input
+                      type="text"
+                      {...register('name')}
+                      className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                    />
+                    <div className="invalid-feedback">{errors.name?.message}</div>
+                  </Form.Group>
+
                   <Form.Group className="form-group">
                     <Form.Label>Email</Form.Label>
                     <input

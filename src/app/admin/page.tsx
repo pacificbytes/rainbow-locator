@@ -1,67 +1,25 @@
-import { Col, Container, Row, Table } from 'react-bootstrap';
-import StuffItemAdmin from '@/components/StuffItemAdmin';
 import { prisma } from '@/lib/prisma';
-import { adminProtectedPage } from '@/lib/page-protection';
 import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import AdminDashboardContent from '@/components/AdminDashboardContent';
 
-const AdminPage = async () => {
+export const dynamic = 'force-dynamic';
+
+const AdminDashboardPage = async () => {
   const session = await auth();
-  adminProtectedPage(
-    session as {
-      user: { email: string; id: string; name: string };
-    } | null,
-  );
-  const stuff = await prisma.stuff.findMany({});
-  const users = await prisma.user.findMany({});
 
-  return (
-    <main>
-      <Container id="list" fluid className="py-3">
-        <Row>
-          <Col>
-            <h1>List Stuff Admin</h1>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Quantity</th>
-                  <th>Condition</th>
-                  <th>Owner</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stuff.map((item: any) => (
-                  <StuffItemAdmin key={item.id} {...item} />
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <h1>List Users Admin</h1>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user: any) => (
-                  <tr key={user.id}>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-      </Container>
-    </main>
-  );
+  if (!session || session.user.role !== 'ADMIN') {
+    redirect('/not-authorized');
+  }
+
+  const stats = {
+    totalItems: await prisma.item.count(),
+    openItems: await prisma.item.count({ where: { status: 'open' } }),
+    pendingClaims: await prisma.claim.count({ where: { status: 'pending' } }),
+    resolvedItems: await prisma.item.count({ where: { status: 'resolved' } }),
+  };
+
+  return <AdminDashboardContent stats={stats} />;
 };
 
-export default AdminPage;
+export default AdminDashboardPage;

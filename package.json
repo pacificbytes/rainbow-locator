@@ -5,12 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx src/seed.ts",
-    "playwright": "npx playwright test",
-    "postinstall": "prisma generate"
+    "playwright": "npx playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -22,7 +21,6 @@
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",
     "pg": "^8.19.0",
-    "prisma": "^7.4.2",
     "react": "19.2.3",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
@@ -43,8 +41,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "^10.1.8",
+    "prisma": "^7.4.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
-

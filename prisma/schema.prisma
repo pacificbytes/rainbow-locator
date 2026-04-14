@@ -1,12 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -19,23 +15,37 @@ enum Role {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
+  id       String  @id @default(uuid())
+  name     String
+  email    String  @unique
   password String
-  role     Role   @default(USER)
+  role     Role    @default(USER)
+  items    Item[]
+  claims   Claim[]
 }
 
-enum Condition {
-  excellent
-  good
-  fair
-  poor
+model Item {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  type        String   // "lost" or "found"
+  location    String
+  date        DateTime
+  image       String?
+  status      String   @default("open") // "open", "pending", "resolved"
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  claims      Claim[]
 }
 
-model Stuff {
-  id        Int       @id @default(autoincrement())
-  name      String
-  quantity  Int
-  condition Condition @default(good)
-  owner     String
+model Claim {
+  id        String   @id @default(uuid())
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  status    String   @default("pending") // "pending", "approved", "denied"
+  createdAt DateTime @default(now())
 }

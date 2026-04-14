@@ -1,80 +1,126 @@
 'use server';
 
-import { Condition } from '@/generated/prisma';
-import { Stuff } from '@/generated/prisma';
+import { Item, Claim } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
 
 /**
- * Adds a new stuff to the database.
- * @param stuff, an object with the following properties: name, quantity, owner, condition.
+ * Adds a new item to the database.
  */
-export async function addStuff(stuff: { name: string; quantity: number; owner: string; condition: string }) {
-  // console.log(`addStuff data: ${JSON.stringify(stuff, null, 2)}`);
-  let condition: Condition = 'good';
-  if (stuff.condition === 'poor') {
-    condition = 'poor';
-  } else if (stuff.condition === 'excellent') {
-    condition = 'excellent';
-  } else {
-    condition = 'fair';
-  }
-  await prisma.stuff.create({
+export async function addItem(item: {
+  title: string;
+  description: string;
+  category: string;
+  type: string;
+  location: string;
+  date: Date;
+  image?: string;
+  ownerId: string;
+}) {
+  await prisma.item.create({
     data: {
-      name: stuff.name,
-      quantity: stuff.quantity,
-      owner: stuff.owner,
-      condition,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      type: item.type,
+      location: item.location,
+      date: item.date,
+      image: item.image,
+      ownerId: item.ownerId,
+      status: 'open',
     },
   });
-  // After adding, redirect to the list page
-  redirect('/list');
+  redirect('/items');
 }
 
 /**
- * Edits an existing stuff in the database.
- * @param stuff, an object with the following properties: id, name, quantity, owner, condition.
+ * Edits an existing item in the database.
  */
-export async function editStuff(stuff: Stuff) {
-  // console.log(`editStuff data: ${JSON.stringify(stuff, null, 2)}`);
-  await prisma.stuff.update({
-    where: { id: stuff.id },
+export async function editItem(item: Partial<Item> & { id: string }) {
+  await prisma.item.update({
+    where: { id: item.id },
     data: {
-      name: stuff.name,
-      quantity: stuff.quantity,
-      owner: stuff.owner,
-      condition: stuff.condition,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      type: item.type,
+      location: item.location,
+      date: item.date,
+      image: item.image,
+      status: item.status,
     },
   });
-  // After updating, redirect to the list page
-  redirect('/list');
+  redirect('/items');
 }
 
 /**
- * Deletes an existing stuff from the database.
- * @param id, the id of the stuff to delete.
+ * Deletes an existing item from the database.
  */
-export async function deleteStuff(id: number) {
-  // console.log(`deleteStuff id: ${id}`);
-  await prisma.stuff.delete({
+export async function deleteItem(id: string) {
+  await prisma.item.delete({
     where: { id },
   });
-  // After deleting, redirect to the list page
-  redirect('/list');
+  redirect('/items');
+}
+
+/**
+ * Adds a new claim for an item.
+ */
+export async function addClaim(claim: { itemId: string; userId: string; message: string }) {
+  await prisma.claim.create({
+    data: {
+      itemId: claim.itemId,
+      userId: claim.userId,
+      message: claim.message,
+      status: 'pending',
+    },
+  });
+  // When a claim is added, we could potentially mark the item as 'pending'
+  await prisma.item.update({
+    where: { id: claim.itemId },
+    data: { status: 'pending' },
+  });
+  redirect('/my-stuff');
+}
+
+/**
+ * Updates the status of a claim.
+ */
+export async function updateClaimStatus(id: string, status: string) {
+  const claim = await prisma.claim.update({
+    where: { id },
+    data: { status },
+    include: { item: true },
+  });
+
+  // If claim is approved, mark the item as resolved
+  if (status === 'approved') {
+    await resolveItem(claim.itemId);
+  }
+}
+
+/**
+ * Marks an item as resolved.
+ */
+export async function resolveItem(id: string) {
+  await prisma.item.update({
+    where: { id },
+    data: { status: 'resolved' },
+  });
 }
 
 /**
  * Creates a new user in the database.
- * @param credentials, an object with the following properties: email, password.
+ * @param credentials, an object with the following properties: email, password, name.
  */
-export async function createUser(credentials: { email: string; password: string }) {
-  // console.log(`createUser data: ${JSON.stringify(credentials, null, 2)}`);
+export async function createUser(credentials: { email: string; password: string; name: string }) {
   const password = await hash(credentials.password, 10);
   await prisma.user.create({
     data: {
       email: credentials.email,
       password,
+      name: credentials.name,
     },
   });
 }
@@ -84,7 +130,6 @@ export async function createUser(credentials: { email: string; password: string 
  * @param credentials, an object with the following properties: email, password.
  */
 export async function changePassword(credentials: { email: string; password: string }) {
-  // console.log(`changePassword data: ${JSON.stringify(credentials, null, 2)}`);
   const password = await hash(credentials.password, 10);
   await prisma.user.update({
     where: { email: credentials.email },
