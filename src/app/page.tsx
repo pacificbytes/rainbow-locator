@@ -7,7 +7,7 @@ const Home = () => (
     <Container className="py-5 text-center">
       <Row className="justify-content-center mb-5">
         <Col md={8}>
-          <h1 className="display-4 fw-bold mb-3">University Lost and Found</h1>
+          <h1 className="display-4 fw-bold mb-3">Rainbow Locator</h1>
           <p className="lead mb-4">
             Helping students and faculty reconnect with their missing belongings.
             Report found items or search for something you've lost.
