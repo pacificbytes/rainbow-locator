@@ -1,10 +1,11 @@
 'use client';
 
 import { Claim, Item, User } from '@prisma/client';
-import { Button, Badge } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { updateClaimStatus } from '@/lib/dbActions';
 import swal from 'sweetalert';
 import Link from 'next/link';
+import { Check, X } from 'react-bootstrap-icons';
 
 interface ClaimReviewRowProps {
   claim: Claim & { item: Item; user: User };
@@ -17,34 +18,50 @@ const ClaimReviewRow = ({ claim }: ClaimReviewRowProps) => {
   };
 
   return (
-    <tr>
+    <tr style={{ verticalAlign: 'middle' }}>
       <td>
-        <Link href={`/items/${claim.itemId}`}>{claim.item.title}</Link>
-        <br />
-        <Badge bg={claim.item.type === 'lost' ? 'danger' : 'success'}>
-          {claim.item.type.toUpperCase()}
-        </Badge>
+        <Link href={`/items/${claim.itemId}`} className="link-green">
+          {claim.item.title}
+        </Link>
+        <div className="mt-1">
+          <span className={`badge-status badge-${claim.item.type}`} style={{ fontSize: '0.6rem', padding: '0.2rem 0.4rem' }}>
+            {claim.item.type}
+          </span>
+        </div>
       </td>
-      <td>{claim.user.email}</td>
-      <td>{claim.message}</td>
+      <td className="small text-muted">{claim.user.name || claim.user.email}</td>
+      <td style={{ fontSize: '0.9rem', maxWidth: '300px' }}>
+        <p className="mb-0 text-truncate" title={claim.message}>{claim.message}</p>
+      </td>
       <td>
-        <Badge bg={
-          claim.status === 'approved' ? 'success' : 
-          claim.status === 'denied' ? 'danger' : 'warning'
-        }>
+        <span className={`badge-status badge-${claim.status}`} style={{ fontSize: '0.7rem' }}>
           {claim.status}
-        </Badge>
+        </span>
       </td>
       <td>
-        {claim.status === 'pending' && (
+        {claim.status === 'pending' ? (
           <div className="d-flex gap-2">
-            <Button variant="success" size="sm" onClick={() => handleAction('approved')}>
-              Approve
+            <Button 
+              variant="success" 
+              size="sm" 
+              onClick={() => handleAction('approved')}
+              className="d-flex align-items-center gap-1"
+              style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+            >
+              <Check size={16} /> Approve
             </Button>
-            <Button variant="danger" size="sm" onClick={() => handleAction('denied')}>
-              Deny
+            <Button 
+              variant="outline-danger" 
+              size="sm" 
+              onClick={() => handleAction('denied')}
+              className="d-flex align-items-center gap-1"
+              style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+            >
+              <X size={16} /> Deny
             </Button>
           </div>
+        ) : (
+          <span className="text-muted small">Processed</span>
         )}
       </td>
     </tr>

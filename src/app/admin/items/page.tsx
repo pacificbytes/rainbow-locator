@@ -1,8 +1,10 @@
 import { prisma } from '@/lib/prisma';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import ItemCardAdmin from '@/components/ItemCardAdmin';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'react-bootstrap-icons';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,22 +21,32 @@ const AdminItemsPage = async () => {
   });
 
   return (
-    <Container className="py-3">
-      <h2 className="mb-4 text-center">Manage All Items</h2>
-      <Row>
+    <main className="main-bg section-padding">
+      <div className="container-narrow">
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <Link href="/admin" className="link-green" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <ArrowLeft /> Back to Dashboard
+          </Link>
+          <h2 className="section-title" style={{ fontSize: '2rem', fontWeight: 'bold' }}>Manage All Items</h2>
+          <p style={{ color: '#666' }}>Review and manage every item reported on campus.</p>
+        </div>
+
         {items.length === 0 ? (
-          <Col className="text-center">
-            <p>No items found.</p>
-          </Col>
+          <div className="item-card" style={{ padding: '2rem' }}>
+            <p className="mb-0 text-center">No items found.</p>
+          </div>
         ) : (
-          items.map((item) => (
-            <Col key={item.id} md={4} className="mb-4">
-              <ItemCardAdmin item={item} />
-            </Col>
-          ))
+          <Row className="g-4">
+            {items.map((item) => (
+              <Col key={item.id} md={6} lg={4}>
+                <ItemCardAdmin item={item} />
+              </Col>
+            ))}
+          </Row>
         )}
-      </Row>
-    </Container>
+      </div>
+    </main>
   );
 };
 
