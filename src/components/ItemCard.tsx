@@ -1,11 +1,23 @@
 'use client';
 
-import { Item } from '@prisma/client';
 import { Card, Badge } from 'react-bootstrap';
 import Link from 'next/link';
 
+type ItemCardItem = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  type: string;
+  location: string;
+  date: Date;
+  image?: string | null;
+  status: string;
+  ownerId: string;
+};
+
 interface ItemCardProps {
-  item: Item;
+  item: ItemCardItem;
 }
 
 const ItemCard = ({ item }: ItemCardProps) => (
@@ -27,8 +39,10 @@ const ItemCard = ({ item }: ItemCardProps) => (
         {item.category}
       </Card.Subtitle>
       <Card.Text>
-        <strong>Location:</strong> {item.location}<br />
-        <strong>Date:</strong> {new Date(item.date).toLocaleDateString()}<br />
+        <strong>Location:</strong> {item.location}
+        <br />
+        <strong>Date:</strong> {new Date(item.date).toLocaleDateString()}
+        <br />
         <strong>Status:</strong> <Badge bg="info">{item.status}</Badge>
       </Card.Text>
       <Link href={`/items/${item.id}`} className="btn btn-primary btn-sm">

@@ -40,7 +40,7 @@ const AdminClaimsPage = async () => {
             </tr>
           </thead>
           <tbody>
-            {claims.map((claim: { id: string }) => (
+            {claims.map((claim) => (
               <ClaimReviewRow key={claim.id} claim={claim} />
             ))}
           </tbody>

@@ -1,27 +1,21 @@
 import Link from 'next/link';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
-import { Search, PlusCircle, ListUl } from 'react-bootstrap-icons';
 import { prisma } from '@/lib/prisma';
-import ItemCard from '@/components/ItemCard';
 
 export const dynamic = 'force-dynamic';
 
 const Home = async () => {
-  const recentItems: Awaited<ReturnType<typeof prisma.item.findMany>> =
-    await prisma.item.findMany({
-      where: {
-        status: { not: 'resolved' },
-      },
-      orderBy: {
-        date: 'desc',
-      },
-      take: 3,
-    });
+  const recentItems = await prisma.item.findMany({
+    where: {
+      status: { not: 'resolved' },
+    },
+    orderBy: {
+      date: 'desc',
+    },
+    take: 3,
+  });
 
   const openCount = await prisma.item.count({
-    where: {
-      status: 'open',
-    },
+    where: { status: 'open' },
   });
 
   const foundCount = await prisma.item.count({
@@ -39,81 +33,179 @@ const Home = async () => {
   });
 
   return (
-    <main>
-      <Container className="py-5">
-        <Row className="align-items-center py-5">
-          <Col lg={7}>
-            <h1 className="display-4 fw-bold mb-3">Rainbow Locator</h1>
-            <p className="lead mb-4">
-              Helping students and faculty reconnect with missing belongings.
-              Report found items, browse recent listings, and manage your claims in one place.
-            </p>
+    <main style={{ fontFamily: 'system-ui', backgroundColor: '#f5f7f6' }}>
+      {/* HERO */}
+      <section
+        style={{
+          padding: '3rem 2rem',
+          background: 'linear-gradient(135deg, #024731, #2f6f4f)',
+          color: 'white',
+        }}
+      >
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <p style={{ color: '#f4c542', fontWeight: 'bold' }}>
+            University of Hawaiʻi at Mānoa
+          </p>
 
-            <div className="d-flex flex-wrap gap-3">
-              <Link href="/items" passHref legacyBehavior>
-                <Button size="lg" variant="primary">
-                  <Search className="me-2" />
-                  Browse Items
-                </Button>
-              </Link>
+          <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            🌈 Rainbow Locator
+          </h1>
 
-              <Link href="/report" passHref legacyBehavior>
-                <Button size="lg" variant="success">
-                  <PlusCircle className="me-2" />
-                  Report an Item
-                </Button>
-              </Link>
+          <p style={{ maxWidth: '700px', fontSize: '1.2rem' }}>
+            Helping the UH Mānoa community reconnect with lost belongings across
+            campus — from Hamilton Library to Campus Center and beyond.
+          </p>
 
-              <Link href="/my-stuff" passHref legacyBehavior>
-                <Button size="lg" variant="outline-secondary">
-                  <ListUl className="me-2" />
-                  My Stuff
-                </Button>
-              </Link>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link href="/items" style={btnGold}>Browse Items</Link>
+            <Link href="/report" style={btnWhite}>Report Item</Link>
+            <Link href="/my-stuff" style={btnOutline}>My Stuff</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section style={{ padding: '2rem' }}>
+        <div style={grid3}>
+          <StatCard title="Open Reports" value={openCount} color="#024731" />
+          <StatCard title="Lost Items" value={lostCount} color="#f4c542" />
+          <StatCard title="Found Items" value={foundCount} color="#2f6f4f" />
+        </div>
+      </section>
+
+      {/* CAMPUS LOCATIONS */}
+      <section style={{ padding: '2rem' }}>
+        <h2 style={sectionTitle}>📍 Common Campus Locations</h2>
+        <div style={grid3}>
+          {['Hamilton Library', 'Campus Center', 'Dorms', 'Classrooms', 'Gym', 'Parking Lots'].map((loc) => (
+            <div key={loc} style={locationCard}>
+              {loc}
             </div>
-          </Col>
+          ))}
+        </div>
+      </section>
 
-          <Col lg={5} className="mt-4 mt-lg-0">
-            <Card className="shadow-sm">
-              <Card.Body>
-                <h3 className="mb-3">Current Activity</h3>
-                <p className="mb-2"><strong>Open reports:</strong> {openCount}</p>
-                <p className="mb-2"><strong>Lost items:</strong> {lostCount}</p>
-                <p className="mb-0"><strong>Found items:</strong> {foundCount}</p>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+      {/* RECENT ITEMS */}
+      <section style={{ padding: '2rem' }}>
+        <h2 style={sectionTitle}>Recent Listings</h2>
 
-        <Row className="mb-3">
-          <Col>
-            <h2 className="fw-bold">Recent Listings</h2>
-            <p className="text-muted">
-              Here are the most recent unresolved lost and found reports.
-            </p>
-          </Col>
-        </Row>
+        {recentItems.length === 0 ? (
+          <p>No items yet.</p>
+        ) : (
+          <div style={grid3}>
+            {recentItems.map((item) => (
+              <div key={item.id} style={itemCard}>
+                <h3 style={{ color: '#024731' }}>{item.title}</h3>
+                <p>{item.description}</p>
 
-        <Row className="g-4">
-          {recentItems.length === 0 ? (
-            <Col>
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <p className="mb-0">No active items have been reported yet.</p>
-                </Card.Body>
-              </Card>
-            </Col>
-          ) : (
-            recentItems.map((item) => (
-              <Col key={item.id} md={6} lg={4}>
-                <ItemCard item={item} />
-              </Col>
-            ))
-          )}
-        </Row>
-      </Container>
+                <p><strong>📍</strong> {item.location}</p>
+                <p><strong>📦</strong> {item.category}</p>
+                <p><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
+
+                <Link href={`/items/${item.id}`} style={linkStyle}>
+                  View Details →
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* CTA */}
+      <section
+        style={{
+          padding: '3rem 2rem',
+          textAlign: 'center',
+          backgroundColor: '#024731',
+          color: 'white',
+        }}
+      >
+        <h2>Lost something on campus?</h2>
+        <p>Report it now and let the UH Mānoa community help you find it.</p>
+
+        <Link href="/report" style={btnGold}>
+          Report Lost Item
+        </Link>
+      </section>
     </main>
   );
+};
+
+/* ---------- COMPONENTS ---------- */
+
+const StatCard = ({ title, value, color }: any) => (
+  <div
+    style={{
+      background: 'white',
+      padding: '1.5rem',
+      borderRadius: '1rem',
+      borderTop: `6px solid ${color}`,
+      textAlign: 'center',
+    }}
+  >
+    <h3>{title}</h3>
+    <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{value}</p>
+  </div>
+);
+
+/* ---------- STYLES ---------- */
+
+const grid3 = {
+  display: 'grid',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+};
+
+const sectionTitle = {
+  color: '#024731',
+  marginBottom: '1rem',
+};
+
+const locationCard = {
+  padding: '1rem',
+  background: 'white',
+  borderRadius: '0.75rem',
+  textAlign: 'center' as const,
+};
+
+const itemCard = {
+  padding: '1rem',
+  background: 'white',
+  borderRadius: '0.75rem',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+};
+
+const linkStyle = {
+  color: '#024731',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+};
+
+const btnGold = {
+  padding: '0.8rem 1.4rem',
+  backgroundColor: '#f4c542',
+  color: '#024731',
+  borderRadius: '0.6rem',
+  textDecoration: 'none',
+  fontWeight: 'bold',
+};
+
+const btnWhite = {
+  padding: '0.8rem 1.4rem',
+  backgroundColor: 'white',
+  color: '#024731',
+  borderRadius: '0.6rem',
+  textDecoration: 'none',
+  fontWeight: 'bold',
+};
+
+const btnOutline = {
+  padding: '0.8rem 1.4rem',
+  border: '1px solid white',
+  color: 'white',
+  borderRadius: '0.6rem',
+  textDecoration: 'none',
+  fontWeight: 'bold',
 };
 
 export default Home;

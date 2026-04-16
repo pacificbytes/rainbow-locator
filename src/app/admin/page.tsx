@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Card, Col, Container, Row } from 'react-bootstrap';
 import { Search, PlusCircle, ListUl } from 'react-bootstrap-icons';
 import { prisma } from '@/lib/prisma';
 import ItemCard from '@/components/ItemCard';
@@ -61,30 +61,24 @@ const HomePage = async () => {
               can report missing items, post found belongings, and help return property across campus.
             </p>
             <p className="mb-4">
-              Whether something was left in Hamilton Library, a classroom, Campus Center, or another
-              part of UH Mānoa, Rainbow Locator helps connect people with their belongings faster.
+              Whether something was left in Hamilton Library, Campus Center, a classroom, or another
+              area of UH Mānoa, Rainbow Locator helps connect people with their belongings faster.
             </p>
 
             <div className="d-flex flex-wrap gap-3">
-              <Link href="/items" passHref legacyBehavior>
-                <Button size="lg" variant="primary">
-                  <Search className="me-2" />
-                  Browse Items
-                </Button>
+              <Link href="/items" className="btn btn-primary btn-lg">
+                <Search className="me-2" />
+                Browse Items
               </Link>
 
-              <Link href="/report" passHref legacyBehavior>
-                <Button size="lg" variant="success">
-                  <PlusCircle className="me-2" />
-                  Report an Item
-                </Button>
+              <Link href="/report" className="btn btn-success btn-lg">
+                <PlusCircle className="me-2" />
+                Report an Item
               </Link>
 
-              <Link href="/my-stuff" passHref legacyBehavior>
-                <Button size="lg" variant="outline-secondary">
-                  <ListUl className="me-2" />
-                  My Stuff
-                </Button>
+              <Link href="/my-stuff" className="btn btn-outline-secondary btn-lg">
+                <ListUl className="me-2" />
+                My Stuff
               </Link>
             </div>
           </Col>
@@ -130,10 +124,8 @@ const HomePage = async () => {
 
         <Row className="mt-5">
           <Col className="text-center">
-            <Link href="/items" passHref legacyBehavior>
-              <Button variant="outline-primary" size="lg">
-                View All Items
-              </Button>
+            <Link href="/items" className="btn btn-outline-primary btn-lg">
+              View All Items
             </Link>
           </Col>
         </Row>
