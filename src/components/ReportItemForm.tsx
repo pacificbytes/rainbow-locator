@@ -19,8 +19,8 @@ const ReportItemForm: React.FC = () => {
     reset,
     setValue,
     formState: { errors },
-  } = useForm({
-    resolver: yupResolver(ReportItemSchema),
+  } = useForm<any>({
+    resolver: yupResolver(ReportItemSchema) as any,
     defaultValues: {
       ownerId: userId,
     },

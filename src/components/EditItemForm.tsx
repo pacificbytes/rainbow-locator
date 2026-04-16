@@ -8,7 +8,7 @@ import { Item } from '@prisma/client';
 import { ReportItemSchema } from '@/lib/validationSchemas';
 import { editItem } from '@/lib/dbActions';
 
-const onSubmit = async (data: Item) => {
+const onSubmit = async (data: any) => {
   await editItem(data);
   swal('Success', 'Your item has been updated', 'success', {
     timer: 2000,
@@ -21,7 +21,7 @@ const EditItemForm = ({ item }: { item: Item }) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<Item>({
+  } = useForm<any>({
     resolver: yupResolver(ReportItemSchema) as any,
     defaultValues: {
       ...item,
