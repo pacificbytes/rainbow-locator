@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Container, Table, Badge } from 'react-bootstrap';
+import { Container, Table } from 'react-bootstrap';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import ClaimReviewRow from '@/components/ClaimReviewRow';
@@ -40,7 +40,7 @@ const AdminClaimsPage = async () => {
             </tr>
           </thead>
           <tbody>
-            {claims.map((claim) => (
+            {claims.map((claim: { id: string }) => (
               <ClaimReviewRow key={claim.id} claim={claim} />
             ))}
           </tbody>

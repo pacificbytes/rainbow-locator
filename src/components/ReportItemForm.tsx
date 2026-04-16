@@ -31,7 +31,18 @@ const ReportItemForm: React.FC = () => {
     setValue('ownerId', userId);
   }
 
-  const onSubmit = async (data: any) => {
+  interface ReportItemData {
+  title: string;
+  description: string;
+  category: string;
+  type: string;
+  location: string;
+  date: string;
+  image?: string;
+  ownerId: string;
+}
+
+  const onSubmit = async (data: ReportItemData) => {
     await addItem(data);
     swal('Success', 'Your item has been reported', 'success', {
       timer: 2000,

@@ -12,17 +12,21 @@ interface ClaimFormProps {
   userId: string;
 }
 
+interface ClaimFormData {
+  message: string;
+}
+
 const ClaimForm = ({ itemId, userId }: ClaimFormProps) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
+  } = useForm<ClaimFormData>({
     resolver: yupResolver(ClaimSchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ClaimFormData) => {
     await addClaim({
       itemId,
       userId,

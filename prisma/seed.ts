@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import { hash } from "bcrypt";
 import config from "../config/settings.development.json";
 import { prisma } from "../src/lib/prisma";
@@ -9,7 +8,7 @@ async function main() {
 
   // Seed Users
   for (const account of config.defaultAccounts) {
-    const role = account.role as Role || Role.USER;
+    const role = account.role || 'USER';
     console.log(`  Creating user: ${account.email} with role: ${role}`);
     await prisma.user.upsert({
       where: { email: account.email },
