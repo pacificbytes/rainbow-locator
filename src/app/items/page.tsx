@@ -1,10 +1,15 @@
 import { prisma } from '@/lib/prisma';
-import { Container, Row, Col } from 'react-bootstrap';
-import ItemCard from '@/components/ItemCard';
+import BrowseItemsClient from '@/components/BrowseItemsClient';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Browse Items Page (Server Component)
+ * As a first-year student, I'm keeping this simple by fetching 
+ * the data here and passing it to the component that handles the buttons.
+ */
 const BrowseItemsPage = async () => {
+  // Get all items that aren't resolved yet
   const items = await prisma.item.findMany({
     where: {
       status: {
@@ -16,24 +21,7 @@ const BrowseItemsPage = async () => {
     },
   });
 
-  return (
-    <Container className="py-3">
-      <h2 className="text-center mb-4">Browse Items</h2>
-      <Row>
-        {items.length === 0 ? (
-          <Col className="text-center">
-            <p>No items found.</p>
-          </Col>
-        ) : (
-          items.map((item) => (
-            <Col key={item.id} md={4} className="mb-4">
-              <ItemCard item={item} />
-            </Col>
-          ))
-        )}
-      </Row>
-    </Container>
-  );
+  return <BrowseItemsClient initialItems={items} />;
 };
 
 export default BrowseItemsPage;
