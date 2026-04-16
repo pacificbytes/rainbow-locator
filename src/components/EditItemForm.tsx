@@ -22,7 +22,7 @@ const EditItemForm = ({ item }: { item: Item }) => {
     reset,
     formState: { errors },
   } = useForm<Item>({
-    resolver: yupResolver(ReportItemSchema),
+    resolver: yupResolver(ReportItemSchema) as any,
     defaultValues: {
       ...item,
       date: item.date ? new Date(item.date).toISOString().split('T')[0] : '',
