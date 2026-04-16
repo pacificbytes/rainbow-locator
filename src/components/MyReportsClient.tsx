@@ -196,31 +196,29 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
 
 const grid3 = {
   display: 'grid',
-  gap: '1.5rem',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+  gap: '1rem',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
 };
 
 const sectionTitle = {
   color: '#024731',
-  fontSize: '2rem',
-  fontWeight: 'bold',
-  marginBottom: '0.5rem',
+  marginBottom: '1rem',
 };
 
 const itemCard = {
-  padding: '1.5rem',
+  padding: '1rem',
   background: 'white',
-  borderRadius: '1rem',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+  borderRadius: '0.75rem',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
   display: 'flex',
   flexDirection: 'column' as const,
 };
 
 const listCard = {
-  padding: '1rem 1.5rem',
+  padding: '1rem',
   background: 'white',
   borderRadius: '0.75rem',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',

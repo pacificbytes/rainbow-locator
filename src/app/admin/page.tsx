@@ -1,137 +1,37 @@
-import Link from 'next/link';
-import { Card, Col, Container, Row } from 'react-bootstrap';
-import { Search, PlusCircle, ListUl } from 'react-bootstrap-icons';
 import { prisma } from '@/lib/prisma';
-import ItemCard from '@/components/ItemCard';
+import { auth } from '@/lib/auth';
+import AdminDashboardContent from '@/components/AdminDashboardContent';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-type HomeItem = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  type: string;
-  location: string;
-  date: Date;
-  image?: string | null;
-  status: string;
-  ownerId: string;
-};
+const AdminPage = async () => {
+  const session = await auth();
 
-const HomePage = async () => {
-  const recentItems: HomeItem[] = await prisma.item.findMany({
-    where: {
-      status: { not: 'resolved' },
-    },
-    orderBy: {
-      date: 'desc',
-    },
-    take: 3,
-  });
+  // Fix: Add role check to prevent non-admins from seeing this page
+  if (!session || session.user.role !== 'ADMIN') {
+    redirect('/not-authorized');
+  }
 
-  const openCount = await prisma.item.count({
-    where: {
-      status: 'open',
-    },
-  });
+  // Fix: Fetch the correct statistics for the admin dashboard
+  const totalItems = await prisma.item.count();
+  const openItems = await prisma.item.count({ where: { status: 'open' } });
+  const pendingClaims = await prisma.claim.count({ where: { status: 'pending' } });
+  const resolvedItems = await prisma.item.count({ where: { status: 'resolved' } });
 
-  const foundCount = await prisma.item.count({
-    where: {
-      type: 'found',
-      status: { not: 'resolved' },
-    },
-  });
+  const stats = {
+    totalItems,
+    openItems,
+    pendingClaims,
+    resolvedItems,
+  };
 
-  const lostCount = await prisma.item.count({
-    where: {
-      type: 'lost',
-      status: { not: 'resolved' },
-    },
-  });
-
+  // Fix: Use the AdminDashboardContent component instead of the home page layout
   return (
     <main>
-      <Container className="py-5">
-        <Row className="align-items-center py-5">
-          <Col lg={7}>
-            <h1 className="display-4 fw-bold mb-3">Rainbow Locator</h1>
-            <p className="lead mb-4">
-              A lost and found system for the UH Mānoa community. Students, faculty, and staff
-              can report missing items, post found belongings, and help return property across campus.
-            </p>
-            <p className="mb-4">
-              Whether something was left in Hamilton Library, Campus Center, a classroom, or another
-              area of UH Mānoa, Rainbow Locator helps connect people with their belongings faster.
-            </p>
-
-            <div className="d-flex flex-wrap gap-3">
-              <Link href="/items" className="btn btn-primary btn-lg">
-                <Search className="me-2" />
-                Browse Items
-              </Link>
-
-              <Link href="/report" className="btn btn-success btn-lg">
-                <PlusCircle className="me-2" />
-                Report an Item
-              </Link>
-
-              <Link href="/my-stuff" className="btn btn-outline-secondary btn-lg">
-                <ListUl className="me-2" />
-                My Stuff
-              </Link>
-            </div>
-          </Col>
-
-          <Col lg={5} className="mt-4 mt-lg-0">
-            <Card className="shadow-sm">
-              <Card.Body>
-                <h3 className="mb-3">UH Mānoa Activity</h3>
-                <p className="mb-2"><strong>Open reports:</strong> {openCount}</p>
-                <p className="mb-2"><strong>Lost items:</strong> {lostCount}</p>
-                <p className="mb-0"><strong>Found items:</strong> {foundCount}</p>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row className="mb-3">
-          <Col>
-            <h2 className="fw-bold">Recent Campus Listings</h2>
-            <p className="text-muted">
-              Recent lost and found reports submitted by the UH Mānoa community.
-            </p>
-          </Col>
-        </Row>
-
-        <Row className="g-4">
-          {recentItems.length === 0 ? (
-            <Col>
-              <Card className="shadow-sm">
-                <Card.Body>
-                  <p className="mb-0">No active items have been reported yet.</p>
-                </Card.Body>
-              </Card>
-            </Col>
-          ) : (
-            recentItems.map((item) => (
-              <Col key={item.id} md={6} lg={4}>
-                <ItemCard item={item} />
-              </Col>
-            ))
-          )}
-        </Row>
-
-        <Row className="mt-5">
-          <Col className="text-center">
-            <Link href="/items" className="btn btn-outline-primary btn-lg">
-              View All Items
-            </Link>
-          </Col>
-        </Row>
-      </Container>
+      <AdminDashboardContent stats={stats} />
     </main>
   );
 };
 
-export default HomePage;
+export default AdminPage;
