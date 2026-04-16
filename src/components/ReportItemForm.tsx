@@ -19,7 +19,7 @@ const ReportItemForm: React.FC = () => {
     reset,
     setValue,
     formState: { errors },
-  } = useForm<any>({
+  } = useForm<ReportItemData>({
     resolver: yupResolver(ReportItemSchema) as any,
     defaultValues: {
       ownerId: userId,
@@ -43,7 +43,10 @@ const ReportItemForm: React.FC = () => {
 }
 
   const onSubmit = async (data: ReportItemData) => {
-    await addItem(data);
+    await addItem({
+      ...data,
+      date: new Date(data.date),
+    });
     swal('Success', 'Your item has been reported', 'success', {
       timer: 2000,
     });
