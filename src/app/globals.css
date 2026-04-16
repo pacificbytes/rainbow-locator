@@ -201,3 +201,23 @@ body {
   background-color: #e8f5e9;
   color: #2e7d32;
 }
+
+/* FORM STYLING */
+.form-card {
+  padding: 2.5rem;
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border: none;
+}
+
+.form-label {
+  color: #024731;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #2f6f4f;
+  box-shadow: 0 0 0 0.25rem rgba(47, 111, 79, 0.25);
+}
