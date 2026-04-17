@@ -60,10 +60,10 @@ const NavBar: React.FC = () => {
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <NavDropdown id="login-dropdown" title="Login">
+              <NavDropdown id="login-dropdown" title="Log in / Sign up">
                 <NavDropdown.Item id="login-dropdown-sign-in" href="/auth/signin">
                   <PersonFill />
-                  Sign in
+                  Log in
                 </NavDropdown.Item>
                 <NavDropdown.Item id="login-dropdown-sign-up" href="/auth/signup">
                   <PersonPlusFill />
