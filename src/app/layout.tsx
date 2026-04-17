@@ -5,6 +5,7 @@ import "./globals.css";
 import Footer from '@/components/Footer';
 import NavBar from '@/components/Navbar';
 import Providers from './providers';
+import { auth } from '@/lib/auth';
 
 
 const geistSans = Geist({
@@ -22,16 +23,17 @@ export const metadata: Metadata = {
   description: 'A professional lost-and-found platform for the UH Manoa community, designed by PacificBytes.',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   const classString = `${geistSans.variable} ${geistMono.variable} wrapper`;
   return (
     <html lang="en">
       <body className={classString}>
-       <Providers>
+       <Providers session={session}>
           <NavBar />
           {children}
           <Footer />
