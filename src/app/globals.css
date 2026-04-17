@@ -255,6 +255,7 @@ body {
   color: rgba(255, 255, 255, 0.76);
 }
 
+
 .stat-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 249, 0.98));
   padding: 1.6rem;
@@ -506,6 +507,7 @@ body {
   .site-footer__inner {
     grid-template-columns: 1fr;
   }
+
 }
 
 @media (max-width: 767px) {
