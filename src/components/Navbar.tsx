@@ -14,12 +14,18 @@ const NavBar: React.FC = () => {
   const isLoading = status === 'loading';
 
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar expand="lg" className="site-navbar">
       <Container>
-        <Navbar.Brand href="/">Rainbow Locator</Navbar.Brand>
+        <Navbar.Brand href="/" className="site-navbar__brand">
+          <span className="site-navbar__mark">PB</span>
+          <span>
+            Rainbow Locator
+            <small>by PacificBytes</small>
+          </span>
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto justify-content-start">
+          <Nav className="me-auto justify-content-start site-navbar__links">
             {!isLoading && currentUser && (
               <>
                 <Nav.Link id="report-item-nav" href="/report" active={pathName === '/report'}>
@@ -39,7 +45,7 @@ const NavBar: React.FC = () => {
               </Nav.Link>
             )}
           </Nav>
-          <Nav>
+          <Nav className="site-navbar__auth">
             {isLoading ? (
               <Nav.Link disabled>Loading...</Nav.Link>
             ) : session ? (

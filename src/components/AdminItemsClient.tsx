@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ListUl, Grid3x3GapFill, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ListUl, Grid3x3GapFill } from 'react-bootstrap-icons';
 import { deleteItem } from '@/lib/dbActions';
 import swal from 'sweetalert';
 

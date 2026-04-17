@@ -17,7 +17,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
     return NextResponse.json(claims);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch claims' }, { status: 500 });
   }
 }

@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import { ArrowRight, Check2Circle, GeoAlt, ShieldCheck } from 'react-bootstrap-icons';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 const Home = async () => {
-  const recentItems = await prisma.item.findMany({
+  const session = await auth();
+  const recentItems = session ? await prisma.item.findMany({
     where: {
       status: { not: 'resolved' },
     },
@@ -12,7 +15,7 @@ const Home = async () => {
       date: 'desc',
     },
     take: 3,
-  });
+  }) : [];
 
   const openCount = await prisma.item.count({
     where: { status: 'open' },
@@ -36,30 +39,67 @@ const Home = async () => {
     <main className="main-bg">
       {/* HERO */}
       <section className="hero-section">
-        <div className="container-narrow">
-          <p style={{ color: '#f4c542', fontWeight: 'bold' }}>
-            University of Hawaiʻi at Mānoa
-          </p>
+        <div className="container-narrow hero-layout">
+          <div className="hero-copy">
+            <p className="hero-kicker">University of Hawaiʻi at Mānoa</p>
 
-          <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-            🌈 Rainbow Locator
-          </h1>
+            <h1 className="hero-title">
+              Lost and found, designed to feel trustworthy.
+            </h1>
 
-          <p style={{ maxWidth: '700px', fontSize: '1.2rem' }}>
-            Helping the UH Mānoa community reconnect with lost belongings across
-            campus — from Hamilton Library to Campus Center and beyond.
-          </p>
+            <p className="hero-description">
+              Rainbow Locator helps students, faculty, and staff report missing
+              belongings, browse verified listings, and reconnect items with the
+              right owners across campus.
+            </p>
 
-          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/items" className="btn-gold">Browse Items</Link>
-            <Link href="/report" className="btn-white">Report Item</Link>
-            <Link href="/my-stuff" className="btn-outline">My Stuff</Link>
+            <div className="hero-actions">
+              <Link href="/items" className="btn-gold">
+                Browse Listings <ArrowRight size={16} />
+              </Link>
+              <Link href="/report" className="btn-white">Report an Item</Link>
+              <Link href="/my-stuff" className="btn-outline">My Dashboard</Link>
+            </div>
+
+            <div className="hero-highlights">
+              <span><ShieldCheck size={16} /> Structured item reporting</span>
+              <span><GeoAlt size={16} /> Campus-focused locations</span>
+              <span><Check2Circle size={16} /> Clear claim tracking</span>
+            </div>
+          </div>
+
+          <div className="hero-panel">
+            <div className="hero-panel__card">
+              <p className="hero-panel__eyebrow">Product Snapshot</p>
+              <div className="hero-panel__metrics">
+                <div>
+                  <strong>{openCount}</strong>
+                  <span>Open reports</span>
+                </div>
+                <div>
+                  <strong>{lostCount}</strong>
+                  <span>Lost items</span>
+                </div>
+                <div>
+                  <strong>{foundCount}</strong>
+                  <span>Found items</span>
+                </div>
+              </div>
+              <p className="hero-panel__note">
+                Built by PacificBytes to make recovery workflows clearer,
+                faster, and more credible than a generic bulletin-board app.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* STATS */}
       <section className="section-padding">
+        <div className="section-header container-narrow">
+          <p className="section-kicker">Live activity</p>
+          <h2 className="section-title">A clearer view of what is active on campus</h2>
+        </div>
         <div className="grid-3">
           <StatCard title="Open Reports" value={openCount} color="#024731" />
           <StatCard title="Lost Items" value={lostCount} color="#f4c542" />
@@ -69,7 +109,10 @@ const Home = async () => {
 
       {/* CAMPUS LOCATIONS */}
       <section className="section-padding">
-        <h2 className="section-title">📍 Common Campus Locations</h2>
+        <div className="section-header container-narrow">
+          <p className="section-kicker">Coverage</p>
+          <h2 className="section-title">Common campus locations people search first</h2>
+        </div>
         <div className="grid-3">
           {['Hamilton Library', 'Campus Center', 'Dorms', 'Classrooms', 'Gym', 'Parking Lots'].map((loc) => (
             <div key={loc} className="location-card">
@@ -79,40 +122,48 @@ const Home = async () => {
         </div>
       </section>
 
-      {/* RECENT ITEMS */}
-      <section className="section-padding">
-        <h2 className="section-title">Recent Listings</h2>
-
-        {recentItems.length === 0 ? (
-          <p>No items yet.</p>
-        ) : (
-          <div className="grid-3">
-            {recentItems.map((item) => (
-              <div key={item.id} className="item-card">
-                <h3 style={{ color: '#024731' }}>{item.title}</h3>
-                <p>{item.description}</p>
-
-                <p><strong>📍</strong> {item.location}</p>
-                <p><strong>📦</strong> {item.category}</p>
-                <p><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
-
-                <Link href={`/items/${item.id}`} className="link-green">
-                  View Details →
-                </Link>
-              </div>
-            ))}
+      {session ? (
+        <section className="section-padding">
+          <div className="section-header container-narrow">
+            <p className="section-kicker">Latest reports</p>
+            <h2 className="section-title">Recent listings from the Rainbow Locator feed</h2>
           </div>
-        )}
-      </section>
+
+          {recentItems.length === 0 ? (
+            <p className="container-narrow">No items yet.</p>
+          ) : (
+            <div className="grid-3">
+              {recentItems.map((item) => (
+                <div key={item.id} className="item-card">
+                  <span className={`badge-status badge-${item.type}`}>{item.type}</span>
+                  <h3 style={{ color: '#024731' }}>{item.title}</h3>
+                  <p>{item.description}</p>
+
+                  <p><strong>📍</strong> {item.location}</p>
+                  <p><strong>📦</strong> {item.category}</p>
+                  <p><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
+
+                  <Link href={`/items/${item.id}`} className="link-green">
+                    View Details →
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
 
       {/* CTA */}
       <section className="cta-section">
-        <h2>Lost something on campus?</h2>
-        <p>Report it now and let the UH Mānoa community help you find it.</p>
+        <div className="container-narrow">
+          <p className="section-kicker">Take action</p>
+          <h2>Need to post a missing item or return something you found?</h2>
+          <p>Start a clean, trackable report and let PacificBytes&apos; platform do the organizing.</p>
 
-        <Link href="/report" className="btn-gold">
-          Report Lost Item
-        </Link>
+          <Link href="/report" className="btn-gold">
+            Report Lost Item
+          </Link>
+        </div>
       </section>
     </main>
   );
@@ -120,7 +171,13 @@ const Home = async () => {
 
 /* ---------- COMPONENTS ---------- */
 
-const StatCard = ({ title, value, color }: any) => (
+interface StatCardProps {
+  title: string;
+  value: number;
+  color: string;
+}
+
+const StatCard = ({ title, value, color }: StatCardProps) => (
   <div
     className="stat-card"
     style={{ borderTop: `6px solid ${color}` }}

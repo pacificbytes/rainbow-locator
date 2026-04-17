@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
 import { Container } from 'react-bootstrap';
-import MyReportsClient from '@/components/MyReportsClient';
+import MyReportsClient, { type MyClaim, type MyItem } from '@/components/MyReportsClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,8 +42,8 @@ const MyStuffPage = async () => {
   // This helps make it look like the home page's recent listings!
   return (
     <MyReportsClient 
-      items={myItems as any} 
-      claims={myClaims as any} 
+      items={myItems as MyItem[]} 
+      claims={myClaims as MyClaim[]} 
     />
   );
 };

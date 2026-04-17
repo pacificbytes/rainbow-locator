@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Rainbow Locator',
-  description: 'A lost and found app for students and faculty.',
+  description: 'A professional lost-and-found platform for the UH Manoa community, designed by PacificBytes.',
 };
 
 export default function RootLayout({
@@ -40,4 +40,3 @@ export default function RootLayout({
     </html>
   );
 }
-

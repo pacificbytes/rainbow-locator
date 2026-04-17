@@ -2,31 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Item, Prisma } from '@prisma/client';
 import { ListUl, Grid3x3GapFill, PencilSquare } from 'react-bootstrap-icons';
 
-type MyItem = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  type: string;
-  location: string;
-  date: Date;
-  image?: string | null;
-  status: string;
-  ownerId: string;
-};
-
-type MyClaim = {
-  id: string;
-  itemId: string;
-  message: string;
-  createdAt: Date;
-  status: string;
-  item: {
-    title: string;
-  };
-};
+export type MyItem = Item;
+export type MyClaim = Prisma.ClaimGetPayload<{
+  include: {
+    item: {
+      select: {
+        title: true,
+      },
+    },
+  },
+}>;
 
 interface MyReportsClientProps {
   items: MyItem[];
@@ -152,7 +140,7 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
                     </span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                    <p className="mb-1 italic">"{claim.message}"</p>
+                    <p className="mb-1 italic">&ldquo;{claim.message}&rdquo;</p>
                     <span>Submitted on {new Date(claim.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import swal from 'sweetalert';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Item } from '@prisma/client';
@@ -38,7 +38,7 @@ const EditItemForm = ({ item }: { item: Item }) => {
     reset,
     formState: { errors },
   } = useForm<EditItemFormData>({
-    resolver: yupResolver(ReportItemSchema) as any,
+    resolver: yupResolver(ReportItemSchema) as Resolver<EditItemFormData>,
     defaultValues: {
       ...item,
       date: item.date ? new Date(item.date).toISOString().split('T')[0] : '',

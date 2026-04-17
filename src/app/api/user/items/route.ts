@@ -16,7 +16,7 @@ export async function GET() {
       orderBy: { date: 'desc' },
     });
     return NextResponse.json(items);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch items' }, { status: 500 });
   }
 }

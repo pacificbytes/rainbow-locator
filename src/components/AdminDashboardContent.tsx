@@ -1,5 +1,6 @@
 'use client';
 
+import { ReactNode } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import Link from 'next/link';
 import { 
@@ -19,6 +20,21 @@ interface AdminDashboardContentProps {
     pendingClaims: number;
     resolvedItems: number;
   };
+}
+
+interface StatCardProps {
+  title: string;
+  value: number;
+  color: string;
+  icon: ReactNode;
+}
+
+interface ActionCardProps {
+  title: string;
+  description: string;
+  link: string;
+  icon: ReactNode;
+  btnText: string;
 }
 
 const AdminDashboardContent = ({ stats }: AdminDashboardContentProps) => {
@@ -93,7 +109,7 @@ const AdminDashboardContent = ({ stats }: AdminDashboardContentProps) => {
 
 /* ---------- SUB-COMPONENTS ---------- */
 
-const StatCard = ({ title, value, color, icon }: any) => (
+const StatCard = ({ title, value, color, icon }: StatCardProps) => (
   <div
     className="stat-card"
     style={{ borderTop: `6px solid ${color}`, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
@@ -104,7 +120,7 @@ const StatCard = ({ title, value, color, icon }: any) => (
   </div>
 );
 
-const ActionCard = ({ title, description, link, icon, btnText }: any) => (
+const ActionCard = ({ title, description, link, icon, btnText }: ActionCardProps) => (
   <div className="item-card" style={{ padding: '1.5rem' }}>
     <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
       <div style={{ 
