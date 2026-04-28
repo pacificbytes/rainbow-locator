@@ -34,8 +34,8 @@ const NavBar: React.FC = () => {
                 <Nav.Link id="browse-items-nav" href="/items" active={pathName === '/items'}>
                   Browse Items
                 </Nav.Link>
-                <Nav.Link id="my-stuff-nav" href="/my-stuff" active={pathName === '/my-stuff'}>
-                  My Stuff
+                <Nav.Link id="my-reports-nav" href="/my-stuff" active={pathName === '/my-stuff'}>
+                  My Reports
                 </Nav.Link>
               </>
             )}
