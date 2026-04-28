@@ -1,8 +1,10 @@
 'use client';
 
-import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import ClaimForm from '@/components/ClaimForm';
 import { Item, User } from '@prisma/client';
+import Link from 'next/link';
+import { ArrowLeft, Calendar3, GeoAlt, Person, Tag, InfoCircle } from 'react-bootstrap-icons';
 
 interface ItemDetailsContentProps {
   item: Item & { owner: User };
@@ -15,73 +17,91 @@ const ItemDetailsContent = ({ item, isOwner, sessionUserId }: ItemDetailsContent
   const ownerName = item.owner?.name || item.owner?.email || 'Unknown User';
 
   return (
-    <Container className="py-3">
-      <Row className="justify-content-center">
-        <Col md={8}>
-          <Card className="mb-4">
-            <Row className="g-0">
-              <Col md={6}>
-                {item.image ? (
-                  <Card.Img
-                    src={item.image}
-                    alt={item.title}
-                    style={{ height: '100%', minHeight: '300px', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <div className="bg-light d-flex align-items-center justify-content-center h-100" style={{ minHeight: '300px' }}>
-                    No Image Provided
-                  </div>
-                )}
-              </Col>
-              <Col md={6}>
-                <Card.Body>
-                  <Card.Title className="h2">{item.title}</Card.Title>
-                  <Card.Subtitle className="mb-3">
-                    <Badge bg={itemType === 'lost' ? 'danger' : 'success'} className="me-2">
-                      {itemType.toUpperCase()}
-                    </Badge>
-                    {item.category}
-                  </Card.Subtitle>
-                  <Card.Text>
-                    <strong>Description:</strong><br />
-                    {item.description}
-                  </Card.Text>
-                  <Card.Text>
-                    <strong>Location:</strong> {item.location}<br />
-                    <strong>Date:</strong> {item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}<br />
-                    <strong>Reported by:</strong> {ownerName}<br />
-                    <strong>Status:</strong> <Badge bg="info">{item.status || 'open'}</Badge>
-                  </Card.Text>
-                </Card.Body>
-              </Col>
-            </Row>
-          </Card>
+    <main className="main-bg section-padding">
+      <Container className="container-narrow">
+        <Link href="/items" className="link-green d-inline-flex align-items-center gap-2 mb-4">
+          <ArrowLeft /> Back to items
+        </Link>
 
-          {!isOwner && sessionUserId && item.status === 'open' && (
-            <Card>
-              <Card.Header>
-                <h3>Claim Item</h3>
-              </Card.Header>
-              <Card.Body>
-                <ClaimForm itemId={item.id} userId={sessionUserId} />
-              </Card.Body>
-            </Card>
-          )}
+        <div className="detail-card">
+          <div className="detail-image-container">
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.title}
+                className="detail-image"
+              />
+            ) : (
+              <div className="d-flex align-items-center justify-content-center h-100 text-muted">
+                No Image Provided
+              </div>
+            )}
+          </div>
 
-          {!sessionUserId && (
-            <div className="alert alert-warning">
-              Please <a href="/auth/signin">sign in</a> to claim this item.
+          <div className="detail-content">
+            <div className="detail-meta">
+              <span className={`badge-status badge-${itemType}`}>
+                {itemType.toUpperCase()}
+              </span>
+              <span className={`badge-status badge-${item.status || 'open'}`}>
+                {item.status || 'open'}
+              </span>
             </div>
-          )}
 
-          {isOwner && (
-            <div className="alert alert-info">
-              You reported this item.
+            <h1 className="detail-title">{item.title}</h1>
+
+            <div className="detail-property-list">
+              <div className="detail-property">
+                <strong><Tag size={14} className="me-2" /> Category</strong>
+                <p>{item.category}</p>
+              </div>
+
+              <div className="detail-property">
+                <strong><InfoCircle size={14} className="me-2" /> Description</strong>
+                <p>{item.description}</p>
+              </div>
+
+              <div className="detail-property">
+                <strong><GeoAlt size={14} className="me-2" /> Location</strong>
+                <p>{item.location}</p>
+              </div>
+
+              <div className="detail-property">
+                <strong><Calendar3 size={14} className="me-2" /> Date</strong>
+                <p>{item.date ? new Date(item.date).toLocaleDateString() : 'N/A'}</p>
+              </div>
+
+              <div className="detail-property">
+                <strong><Person size={14} className="me-2" /> Reported By</strong>
+                <p>{ownerName}</p>
+              </div>
             </div>
-          )}
-        </Col>
-      </Row>
-    </Container>
+
+            {isOwner ? (
+              <div className="alert alert-info border-0 rounded-4 py-3">
+                <strong>Notice:</strong> You reported this item. You can manage it from your dashboard.
+              </div>
+            ) : sessionUserId ? (
+              item.status === 'open' ? (
+                <div className="claim-section">
+                  <h3 className="section-title" style={{ fontSize: '1.5rem' }}>Claim this item</h3>
+                  <p className="text-muted mb-4">If you believe this item belongs to you, please provide details below.</p>
+                  <ClaimForm itemId={item.id} userId={sessionUserId} />
+                </div>
+              ) : (
+                <div className="alert alert-warning border-0 rounded-4 py-3">
+                  This item is no longer available for claims.
+                </div>
+              )
+            ) : (
+              <div className="alert alert-warning border-0 rounded-4 py-3">
+                Please <Link href="/auth/signin" className="fw-bold text-decoration-none">sign in</Link> to claim this item.
+              </div>
+            )}
+          </div>
+        </div>
+      </Container>
+    </main>
   );
 };
 
