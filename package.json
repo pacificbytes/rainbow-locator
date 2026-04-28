@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "npx tsx src/seed.ts",
-    "playwright": "npx playwright test"
+    "playwright": "npx playwright test",
+    "playwright:test": "npx playwright test",
+    "playwright:run": "npx playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

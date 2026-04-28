@@ -58,14 +58,14 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
 
         {/* ITEMS LISTING */}
         {initialItems.length === 0 ? (
-          <div style={itemCard}>
+          <div className="item-card" style={itemCard}>
             <p className="mb-0 text-center">No items found yet.</p>
           </div>
         ) : viewMode === 'grid' ? (
           /* GRID VIEW - EXACTLY LIKE HOME PAGE RECENT LISTINGS */
-          <div style={grid3}>
+          <div className="grid-3" style={grid3}>
             {initialItems.map((item) => (
-              <div key={item.id} style={itemCard}>
+              <div key={item.id} className="item-card" style={itemCard}>
                 <h3 style={{ color: '#024731' }}>{item.title}</h3>
                 <p style={{ fontSize: '0.9rem', color: '#444' }}>{item.description}</p>
 
@@ -73,7 +73,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
                 <p style={{ margin: '0.5rem 0' }}><strong>📦</strong> {item.category}</p>
                 <p style={{ margin: '0.5rem 0' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
 
-                <Link href={`/items/${item.id}`} style={linkStyle}>
+                <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
                   View Details →
                 </Link>
               </div>
@@ -105,7 +105,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
                     <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <Link href={`/items/${item.id}`} style={linkStyle}>
+                <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
                   View Details →
                 </Link>
               </div>

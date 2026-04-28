@@ -25,7 +25,7 @@ test('test access to admin page', async ({ getUserPage }) => {
   // Test Report Item adminPage
   await adminPage.getByRole('link', { name: 'Report Item' }).click();
   await expect(
-    adminPage.getByRole('heading', { name: 'Report Lost or Found Item' })
+    adminPage.getByRole('heading', { name: 'Report an Item' })
   ).toBeVisible({ timeout: 5000 });
 
   // Test Browse Items adminPage

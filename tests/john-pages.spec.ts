@@ -22,7 +22,7 @@ test('can authenticate a specific user', async ({ getUserPage }) => {
 
   await customUserPage.getByRole('link', { name: 'Report Item' }).click();
   await expect(
-    customUserPage.getByRole('heading', { name: 'Report Lost or Found Item' })
+    customUserPage.getByRole('heading', { name: 'Report an Item' })
   ).toBeVisible({ timeout: 5000 });
 
   await customUserPage.getByRole('link', { name: 'Browse Items' }).click();
