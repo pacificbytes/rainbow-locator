@@ -13,7 +13,7 @@ const SignOut = () => (
             <Card.Body>
               <Card.Title>Do you want to sign out?</Card.Title>
               <div className="d-flex justify-content-center gap-3 mt-4">
-                <Button variant="danger" onClick={() => signOut({ callbackUrl: '/', redirect: true })}>
+                <Button variant="success" onClick={() => signOut({ callbackUrl: '/', redirect: true })}>
                   Sign Out
                 </Button>
                 <Button variant="secondary" href="/">

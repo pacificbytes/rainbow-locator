@@ -3,6 +3,7 @@
 import { Container } from 'react-bootstrap';
 import ClaimForm from '@/components/ClaimForm';
 import { Item, User } from '@prisma/client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Calendar3, GeoAlt, Person, Tag, InfoCircle } from 'react-bootstrap-icons';
 
@@ -26,10 +27,13 @@ const ItemDetailsContent = ({ item, isOwner, sessionUserId }: ItemDetailsContent
         <div className="detail-card">
           <div className="detail-image-container">
             {item.image ? (
-              <img
+              <Image
                 src={item.image}
                 alt={item.title}
+                fill
                 className="detail-image"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                unoptimized
               />
             ) : (
               <div className="d-flex align-items-center justify-content-center h-100 text-muted">
