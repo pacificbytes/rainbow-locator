@@ -4,6 +4,44 @@ import { Item, } from '@prisma/client';
 import { hash } from 'bcrypt';
 import { redirect } from 'next/navigation';
 import { prisma } from './prisma';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+
+/**
+ * Securely saves a file to the public/uploads directory.
+ */
+async function saveFile(file: File): Promise<string> {
+  // Ensure upload directory exists
+  try {
+    await fs.access(UPLOAD_DIR);
+  } catch {
+    await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  }
+
+  // Server-side security checks
+  const SUPPORTED_FORMATS = ['image/jpg', 'image/jpeg', 'image/png', 'image/webp'];
+  if (!SUPPORTED_FORMATS.includes(file.type)) {
+    throw new Error('Unsupported file format');
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error('File size exceeds 5MB limit');
+  }
+
+  // Generate unique filename to prevent collisions and sanitization issues
+  const extension = path.extname(file.name) || `.${file.type.split('/')[1]}`;
+  const fileName = `${crypto.randomUUID()}${extension}`;
+  const filePath = path.join(UPLOAD_DIR, fileName);
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  await fs.writeFile(filePath, buffer);
+
+  return `/uploads/${fileName}`;
+}
 
 /**
  * Adds a new item to the database.
@@ -15,9 +53,14 @@ export async function addItem(item: {
   type: string;
   location: string;
   date: Date;
-  image?: string;
+  image?: File;
   ownerId: string;
 }) {
+  let imagePath = null;
+  if (item.image && item.image.size > 0) {
+    imagePath = await saveFile(item.image);
+  }
+
   await prisma.item.create({
     data: {
       title: item.title,
@@ -26,7 +69,7 @@ export async function addItem(item: {
       type: item.type,
       location: item.location,
       date: item.date,
-      image: item.image,
+      image: imagePath,
       ownerId: item.ownerId,
       status: 'open',
     },
@@ -37,7 +80,13 @@ export async function addItem(item: {
 /**
  * Edits an existing item in the database.
  */
-export async function editItem(item: Partial<Item> & { id: string }) {
+export async function editItem(item: Partial<Item> & { id: string; imageFile?: File }) {
+  let imagePath = item.image;
+
+  if (item.imageFile && item.imageFile.size > 0) {
+    imagePath = await saveFile(item.imageFile);
+  }
+
   await prisma.item.update({
     where: { id: item.id },
     data: {
@@ -47,7 +96,7 @@ export async function editItem(item: Partial<Item> & { id: string }) {
       type: item.type,
       location: item.location,
       date: item.date,
-      image: item.image,
+      image: imagePath,
       status: item.status,
     },
   });

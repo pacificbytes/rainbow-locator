@@ -26,13 +26,13 @@ const NavBar: React.FC = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto justify-content-start site-navbar__links">
+            <Nav.Link id="browse-items-nav" href="/items" active={pathName === '/items'}>
+              Browse Items
+            </Nav.Link>
             {!isLoading && currentUser && (
               <>
                 <Nav.Link id="report-item-nav" href="/report" active={pathName === '/report'}>
                   Report Item
-                </Nav.Link>
-                <Nav.Link id="browse-items-nav" href="/items" active={pathName === '/items'}>
-                  Browse Items
                 </Nav.Link>
                 <Nav.Link id="my-reports-nav" href="/my-stuff" active={pathName === '/my-stuff'}>
                   My Reports
@@ -49,14 +49,15 @@ const NavBar: React.FC = () => {
             {isLoading ? (
               <Nav.Link disabled>Loading...</Nav.Link>
             ) : session ? (
-              <NavDropdown id="login-dropdown" title={currentUser}>
-                <NavDropdown.Item id="login-dropdown-sign-out" href="/auth/signout">
-                  <BoxArrowRight />
-                  Sign Out
-                </NavDropdown.Item>
+              <NavDropdown id="login-dropdown" title={<span><PersonFill className="me-2" />{currentUser}</span>}>
                 <NavDropdown.Item id="login-dropdown-change-password" href="/auth/change-password">
-                  <Lock />
+                  <Lock size={18} />
                   Change Password
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item id="login-dropdown-sign-out" href="/auth/signout">
+                  <BoxArrowRight size={18} />
+                  Sign Out
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (

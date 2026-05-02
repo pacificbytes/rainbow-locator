@@ -18,7 +18,7 @@ interface ReportItemData {
   type: string;
   location: string;
   date: string;
-  image?: string;
+  image: FileList;
   ownerId: string;
 }
 
@@ -45,13 +45,18 @@ const ReportItemForm: React.FC = () => {
   }
 
   const onSubmit = async (data: ReportItemData) => {
-    await addItem({
-      ...data,
-      date: new Date(data.date),
-    });
-    swal('Success', 'Your item has been reported successfully!', 'success', {
-      timer: 2000,
-    });
+    try {
+      await addItem({
+        ...data,
+        date: new Date(data.date),
+        image: data.image[0], // Pass the first file from FileList
+      });
+      swal('Success', 'Your item has been reported successfully!', 'success', {
+        timer: 2000,
+      });
+    } catch (error) {
+      swal('Error', (error as Error).message || 'Failed to report item', 'error');
+    }
   };
 
   if (status === 'loading') {
@@ -173,16 +178,19 @@ const ReportItemForm: React.FC = () => {
 
                     <Col md={12} className="mb-4">
                       <Form.Group>
-                        <Form.Label>Image URL (Optional)</Form.Label>
+                        <Form.Label>Upload Image</Form.Label>
                         <Form.Control
-                          type="text"
-                          placeholder="Link to an image of the item"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
                           {...register('image')}
                           isInvalid={!!errors.image}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.image?.message}
                         </Form.Control.Feedback>
+                        <Form.Text className="text-muted">
+                          Max size: 5MB. Formats: JPG, PNG, WEBP.
+                        </Form.Text>
                       </Form.Group>
                     </Col>
                   </Row>
