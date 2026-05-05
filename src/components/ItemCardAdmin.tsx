@@ -7,11 +7,15 @@ import { deleteItem } from '@/lib/dbActions';
 import swal from 'sweetalert';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 
+import { useRouter } from 'next/navigation';
+
 interface ItemCardAdminProps {
   item: Item & { owner: User };
 }
 
 const ItemCardAdmin = ({ item }: ItemCardAdminProps) => {
+  const router = useRouter();
+
   const handleDelete = async () => {
     const confirm = await swal({
       title: 'Are you sure?',
@@ -26,6 +30,7 @@ const ItemCardAdmin = ({ item }: ItemCardAdminProps) => {
       swal('Poof! Your item has been deleted!', {
         icon: 'success',
       });
+      router.refresh();
     }
   };
 

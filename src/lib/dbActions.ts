@@ -110,7 +110,6 @@ export async function deleteItem(id: string) {
   await prisma.item.delete({
     where: { id },
   });
-  redirect('/items');
 }
 
 /**

@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ListUl, Grid3x3GapFill } from 'react-bootstrap-icons';
+import { ListUl, Grid3x3GapFill, Trash, PencilSquare } from 'react-bootstrap-icons';
 import { deleteItem } from '@/lib/dbActions';
 import swal from 'sweetalert';
+import { Button } from 'react-bootstrap';
 
 type AdminItem = {
   id: string;
@@ -49,9 +50,11 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
 
     if (confirm) {
       await deleteItem(id);
-      setItems(items.filter(item => item.id !== id));
+      const newItems = items.filter(item => item.id !== id);
+      setItems(newItems);
+      
       // Adjust current page if last item on page was deleted
-      const newTotalPages = Math.ceil((items.length - 1) / itemsPerPage);
+      const newTotalPages = Math.ceil(newItems.length / itemsPerPage);
       if (currentPage > newTotalPages && newTotalPages > 0) {
         setCurrentPage(newTotalPages);
       }
@@ -127,17 +130,21 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
                     </div>
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-                      <Link href={`/items/${item.id}`} style={{ ...btnBase, background: '#e3f2fd', color: '#1565c0' }}>Details</Link>
-                      <Link href={`/edit/${item.id}`} style={{ ...btnBase, background: '#fff3cd', color: '#856404' }}>Edit</Link>
-                      <button onClick={() => handleDelete(item.id)} style={{ ...btnBase, background: '#ffebee', color: '#c62828', border: 'none', cursor: 'pointer' }}>Delete</button>
+                      <Link href={`/items/${item.id}`} className="btn btn-outline-success btn-sm flex-fill" style={{ borderRadius: '0.5rem', fontWeight: 'bold' }}>Details</Link>
+                      <Link href={`/edit/${item.id}`} className="btn btn-warning btn-sm flex-fill d-flex align-items-center justify-content-center gap-1" style={{ borderRadius: '0.5rem', fontWeight: 'bold' }}>
+                        <PencilSquare size={14} /> Edit
+                      </Link>
+                      <Button variant="outline-danger" size="sm" className="flex-fill d-flex align-items-center justify-content-center gap-1" onClick={() => handleDelete(item.id)} style={{ borderRadius: '0.5rem', fontWeight: 'bold' }}>
+                        <Trash size={14} /> Delete
+                      </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {paginatedItems.map((item) => (
-                  <div key={item.id} style={listCard}>
+                    </div>
+                    ))}
+                    </div>
+                    ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {paginatedItems.map((item) => (
+                    <div key={item.id} className="list-card">
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.3rem' }}>
                         <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
@@ -149,16 +156,20 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
                         <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <Link href={`/edit/${item.id}`} style={{ color: '#856404', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Edit</Link>
-                      <button onClick={() => handleDelete(item.id)} style={{ color: '#c62828', fontWeight: 'bold', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer' }}>Delete</button>
-                      <Link href={`/items/${item.id}`} style={{ color: '#024731', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Details →</Link>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <Link href={`/edit/${item.id}`} className="btn btn-outline-warning btn-sm">Edit</Link>
+                      <button 
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
+                      >
+                        <Trash size={14} /> Delete
+                      </button>
+                      <Link href={`/items/${item.id}`} className="link-green">Details →</Link>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
+                    </div>
+                    ))}
+                    </div>
+                    )}
             {/* PAGINATION CONTROLS */}
             {totalPages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '3rem' }}>
@@ -211,26 +222,6 @@ const itemCard = {
   boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
   display: 'flex',
   flexDirection: 'column' as const,
-};
-
-const listCard = {
-  padding: '1rem 1.5rem',
-  background: 'white',
-  borderRadius: '0.75rem',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-};
-
-const btnBase = {
-  padding: '0.4rem 0.8rem',
-  borderRadius: '0.4rem',
-  fontSize: '0.8rem',
-  fontWeight: 'bold' as const,
-  textDecoration: 'none',
-  textAlign: 'center' as const,
-  flex: 1,
 };
 
 const activeToggle = {

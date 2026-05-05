@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Item, Prisma } from '@prisma/client';
-import { ListUl, Grid3x3GapFill, PencilSquare, Search } from 'react-bootstrap-icons';
+import { ListUl, Grid3x3GapFill, PencilSquare, Search, Trash } from 'react-bootstrap-icons';
+import { deleteItem } from '@/lib/dbActions';
+import swal from 'sweetalert';
 
 export type MyItem = Item;
 export type MyClaim = Prisma.ClaimGetPayload<{
@@ -21,8 +23,9 @@ interface MyReportsClientProps {
   claims: MyClaim[];
 }
 
-const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
+const MyReportsClient = ({ items: initialItems, claims }: MyReportsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [items, setItems] = useState(initialItems);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +60,30 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
   const handleStatusChange = (status: string) => {
     setStatusFilter(status);
     setCurrentPage(1);
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirm = await swal({
+      title: 'Are you sure?',
+      text: 'This will permanently remove your report!',
+      icon: 'warning',
+      buttons: ['Cancel', 'Delete'],
+      dangerMode: true,
+    });
+
+    if (confirm) {
+      await deleteItem(id);
+      const newItems = items.filter(item => item.id !== id);
+      setItems(newItems);
+      
+      // Adjust current page if last item on page was deleted
+      const newTotalPages = Math.ceil(newItems.length / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
+      
+      swal('Removed!', 'Your report has been deleted.', 'success');
+    }
   };
 
   const filteredClaims = claims.filter((claim) => {
@@ -157,13 +184,21 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
                       <p style={{ marginBottom: '1rem' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                      <Link href={`/items/${item.id}`} className="link-green">
-                        View Details →
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+                      <Link href={`/items/${item.id}`} className="btn btn-outline-success btn-sm flex-fill" style={{ borderRadius: '0.5rem' }}>
+                        Details
                       </Link>
-                      <Link href={`/edit/${item.id}`} className="btn btn-warning btn-sm d-flex align-items-center gap-1">
+                      <Link href={`/edit/${item.id}`} className="btn btn-warning btn-sm flex-fill d-flex align-items-center justify-content-center gap-1" style={{ borderRadius: '0.5rem' }}>
                         <PencilSquare size={14} /> Edit
                       </Link>
+                      <button 
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
+                        style={{ borderRadius: '0.5rem', padding: '0.4rem 0.6rem' }}
+                        title="Delete Report"
+                      >
+                        <Trash size={14} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -184,8 +219,14 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
                         <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                       <Link href={`/edit/${item.id}`} className="btn btn-outline-warning btn-sm">Edit</Link>
+                      <button 
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
+                      >
+                        <Trash size={14} /> Delete
+                      </button>
                       <Link href={`/items/${item.id}`} className="link-green">Details →</Link>
                     </div>
                   </div>

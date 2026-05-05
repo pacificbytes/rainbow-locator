@@ -1,10 +1,9 @@
 import { prisma } from '@/lib/prisma';
-import { Row, Col } from 'react-bootstrap';
-import ItemCardAdmin from '@/components/ItemCardAdmin';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'react-bootstrap-icons';
+import AdminItemsClient from '@/components/AdminItemsClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,19 +31,7 @@ const AdminItemsPage = async () => {
           <p style={{ color: '#666' }}>Review and manage every item reported on campus.</p>
         </div>
 
-        {items.length === 0 ? (
-          <div className="item-card" style={{ padding: '2rem' }}>
-            <p className="mb-0 text-center">No items found.</p>
-          </div>
-        ) : (
-          <Row className="g-4">
-            {items.map((item) => (
-              <Col key={item.id} md={6} lg={4}>
-                <ItemCardAdmin item={item} />
-              </Col>
-            ))}
-          </Row>
-        )}
+        <AdminItemsClient initialItems={items} />
       </div>
     </main>
   );
