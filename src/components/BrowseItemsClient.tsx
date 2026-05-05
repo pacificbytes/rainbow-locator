@@ -24,15 +24,20 @@ interface BrowseItemsClientProps {
 const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   const filteredItems = initialItems.filter((item) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       item.title.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
       item.location.toLowerCase().includes(query) ||
       item.category.toLowerCase().includes(query)
     );
+
+    const matchesType = typeFilter === 'all' || item.type === typeFilter;
+
+    return matchesSearch && matchesType;
   });
 
   return (
@@ -49,6 +54,17 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Type Filter */}
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="themed-filter-select"
+            >
+              <option value="all">All Types</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+            </select>
+
             {/* Search Bar */}
             <div className="search-container">
               <input
@@ -85,7 +101,11 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
         {filteredItems.length === 0 ? (
           <div className="item-card" style={itemCard}>
             <p className="mb-0 text-center">
-              {searchQuery ? `No items found matching "${searchQuery}"` : 'No items found yet.'}
+              {searchQuery || typeFilter !== 'all' ? (
+                `No items found matching your filters`
+              ) : (
+                'No items found yet.'
+              )}
             </p>
           </div>
         ) : viewMode === 'grid' ? (
@@ -93,8 +113,21 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
           <div className="grid-3" style={grid3}>
             {filteredItems.map((item) => (
               <div key={item.id} className="item-card" style={itemCard}>
-                <h3 style={{ color: '#024731' }}>{item.title}</h3>
-                <p style={{ fontSize: '0.9rem', color: '#444' }}>{item.description}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                   <h3 style={{ color: '#024731', margin: 0 }}>{item.title}</h3>
+                   <span style={{ 
+                      backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
+                      color: item.type === 'lost' ? '#c62828' : '#2e7d32',
+                      padding: '0.1rem 0.5rem',
+                      borderRadius: '0.3rem',
+                      fontSize: '0.65rem',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase'
+                    }}>
+                      {item.type}
+                    </span>
+                </div>
+                <p style={{ fontSize: '0.9rem', color: '#444', marginTop: '0.5rem' }}>{item.description}</p>
 
                 <p style={{ margin: '0.5rem 0' }}><strong>📍</strong> {item.location}</p>
                 <p style={{ margin: '0.5rem 0' }}><strong>📦</strong> {item.category}</p>

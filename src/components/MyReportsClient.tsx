@@ -24,15 +24,20 @@ interface MyReportsClientProps {
 const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const filteredItems = items.filter((item) => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       item.title.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
       item.location.toLowerCase().includes(query) ||
       item.category.toLowerCase().includes(query)
     );
+
+    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
   });
 
   const filteredClaims = claims.filter((claim) => {
@@ -57,6 +62,18 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="themed-filter-select"
+            >
+              <option value="all">All Statuses</option>
+              <option value="open">Open</option>
+              <option value="pending">Pending</option>
+              <option value="resolved">Resolved</option>
+            </select>
+
             {/* Search Bar */}
             <div className="search-container">
               <input
@@ -92,7 +109,9 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
         {filteredItems.length === 0 ? (
           <div className="item-card" style={{ marginBottom: '3rem' }}>
             <p className="mb-0 text-center">
-              {searchQuery ? `No reports found matching "${searchQuery}"` : (
+              {searchQuery || statusFilter !== 'all' ? (
+                `No reports found matching your filters`
+              ) : (
                 <>
                   You haven&apos;t reported any items yet.{' '}
                   <Link href="/report" className="link-green">Report one now.</Link>
