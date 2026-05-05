@@ -25,6 +25,8 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredItems = initialItems.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -39,6 +41,24 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
 
     return matchesSearch && matchesType;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset to first page when filters change
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleTypeChange = (type: string) => {
+    setTypeFilter(type);
+    setCurrentPage(1);
+  };
 
   return (
     <main style={{ fontFamily: 'system-ui', backgroundColor: '#f5f7f6', minHeight: '100vh', padding: '2rem' }}>
@@ -57,7 +77,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
             {/* Type Filter */}
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={(e) => handleTypeChange(e.target.value)}
               className="themed-filter-select"
             >
               <option value="all">All Types</option>
@@ -71,7 +91,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
                 type="text"
                 placeholder="Search items..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="themed-search-bar"
               />
               <Search className="search-icon" />
@@ -98,7 +118,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
         </div>
 
         {/* ITEMS LISTING */}
-        {filteredItems.length === 0 ? (
+        {paginatedItems.length === 0 ? (
           <div className="item-card" style={itemCard}>
             <p className="mb-0 text-center">
               {searchQuery || typeFilter !== 'all' ? (
@@ -108,69 +128,98 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
               )}
             </p>
           </div>
-        ) : viewMode === 'grid' ? (
-          /* GRID VIEW - EXACTLY LIKE HOME PAGE RECENT LISTINGS */
-          <div className="grid-3" style={grid3}>
-            {filteredItems.map((item) => (
-              <div key={item.id} className="item-card" style={itemCard}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                   <h3 style={{ color: '#024731', margin: 0 }}>{item.title}</h3>
-                   <span style={{ 
-                      backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
-                      color: item.type === 'lost' ? '#c62828' : '#2e7d32',
-                      padding: '0.1rem 0.5rem',
-                      borderRadius: '0.3rem',
-                      fontSize: '0.65rem',
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase'
-                    }}>
-                      {item.type}
-                    </span>
-                </div>
-                <p style={{ fontSize: '0.9rem', color: '#444', marginTop: '0.5rem' }}>{item.description}</p>
-
-                <p style={{ margin: '0.5rem 0' }}><strong>📍</strong> {item.location}</p>
-                <p style={{ margin: '0.5rem 0' }}><strong>📦</strong> {item.category}</p>
-                <p style={{ margin: '0.5rem 0' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
-
-                <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
-                  View Details →
-                </Link>
-              </div>
-            ))}
-          </div>
         ) : (
-          /* LIST VIEW - COMPACT VERSION */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {filteredItems.map((item) => (
-              <div key={item.id} style={listCard}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
-                    <span style={{ 
-                      backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
-                      color: item.type === 'lost' ? '#c62828' : '#2e7d32',
-                      padding: '0.1rem 0.5rem',
-                      borderRadius: '0.3rem',
-                      fontSize: '0.65rem',
-                      fontWeight: 'bold',
-                      textTransform: 'uppercase'
-                    }}>
-                      {item.type}
-                    </span>
+          <>
+            {viewMode === 'grid' ? (
+              /* GRID VIEW - EXACTLY LIKE HOME PAGE RECENT LISTINGS */
+              <div className="grid-3" style={grid3}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} className="item-card" style={itemCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                       <h3 style={{ color: '#024731', margin: 0 }}>{item.title}</h3>
+                       <span style={{ 
+                          backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
+                          color: item.type === 'lost' ? '#c62828' : '#2e7d32',
+                          padding: '0.1rem 0.5rem',
+                          borderRadius: '0.3rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase'
+                        }}>
+                          {item.type}
+                        </span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#444', marginTop: '0.5rem' }}>{item.description}</p>
+
+                    <p style={{ margin: '0.5rem 0' }}><strong>📍</strong> {item.location}</p>
+                    <p style={{ margin: '0.5rem 0' }}><strong>📦</strong> {item.category}</p>
+                    <p style={{ margin: '0.5rem 0' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
+
+                    <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
+                      View Details →
+                    </Link>
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
-                    <span><strong>📍</strong> {item.location}</span>
-                    <span><strong>📦</strong> {item.category}</span>
-                    <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
-                  View Details →
-                </Link>
+                ))}
               </div>
-            ))}
-          </div>
+            ) : (
+              /* LIST VIEW - COMPACT VERSION */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} style={listCard}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
+                        <span style={{ 
+                          backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
+                          color: item.type === 'lost' ? '#c62828' : '#2e7d32',
+                          padding: '0.1rem 0.5rem',
+                          borderRadius: '0.3rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase'
+                        }}>
+                          {item.type}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
+                        <span><strong>📍</strong> {item.location}</span>
+                        <span><strong>📦</strong> {item.category}</span>
+                        <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <Link href={`/items/${item.id}`} className="link-green" style={linkStyle}>
+                      View Details →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '3rem' }}>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  ← Previous
+                </button>
+                <span style={{ fontWeight: '600', color: '#41554d' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>

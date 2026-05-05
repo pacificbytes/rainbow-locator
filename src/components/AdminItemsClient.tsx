@@ -28,6 +28,15 @@ interface AdminItemsClientProps {
 const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [items, setItems] = useState(initialItems);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Pagination logic
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const paginatedItems = items.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleDelete = async (id: string) => {
     const confirm = await swal({
@@ -41,6 +50,11 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
     if (confirm) {
       await deleteItem(id);
       setItems(items.filter(item => item.id !== id));
+      // Adjust current page if last item on page was deleted
+      const newTotalPages = Math.ceil((items.length - 1) / itemsPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
       swal('Deleted!', 'The report has been removed.', 'success');
     }
   };
@@ -75,72 +89,101 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
         </div>
 
         {/* ITEMS SECTION */}
-        {items.length === 0 ? (
+        {paginatedItems.length === 0 ? (
           <div style={itemCard}>
             <p className="mb-0 text-center">No reports found in the system.</p>
           </div>
-        ) : viewMode === 'grid' ? (
-          <div style={grid3}>
-            {items.map((item) => (
-              <div key={item.id} style={itemCard}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                   <h3 style={{ color: '#024731' }}>{item.title}</h3>
-                   <span style={{ 
-                     backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
-                     color: item.type === 'lost' ? '#c62828' : '#2e7d32',
-                     padding: '0.2rem 0.6rem',
-                     borderRadius: '0.4rem',
-                     fontSize: '0.75rem',
-                     fontWeight: 'bold',
-                     textTransform: 'uppercase'
-                   }}>
-                     {item.type}
-                   </span>
-                </div>
-                <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>
-                  <strong>Owner:</strong> {item.owner.email}
-                </p>
-                
-                <p style={{ fontSize: '0.9rem', color: '#444' }}>{item.description}</p>
-
-                <div style={{ fontSize: '0.85rem', color: '#666' }}>
-                  <p style={{ margin: '0.3rem 0' }}><strong>📍</strong> {item.location}</p>
-                  <p style={{ margin: '0.3rem 0' }}><strong>📦</strong> {item.category}</p>
-                  <p style={{ margin: '0.3rem 0' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
-                  <p style={{ margin: '0.3rem 0' }}><strong>Status:</strong> {item.status}</p>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-                  <Link href={`/items/${item.id}`} style={{ ...btnBase, background: '#e3f2fd', color: '#1565c0' }}>Details</Link>
-                  <Link href={`/edit/${item.id}`} style={{ ...btnBase, background: '#fff3cd', color: '#856404' }}>Edit</Link>
-                  <button onClick={() => handleDelete(item.id)} style={{ ...btnBase, background: '#ffebee', color: '#c62828', border: 'none', cursor: 'pointer' }}>Delete</button>
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {items.map((item) => (
-              <div key={item.id} style={listCard}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.3rem' }}>
-                    <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
-                    <span style={{ fontSize: '0.75rem', color: '#666' }}>({item.owner.email})</span>
+          <>
+            {viewMode === 'grid' ? (
+              <div style={grid3}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} style={itemCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                       <h3 style={{ color: '#024731' }}>{item.title}</h3>
+                       <span style={{ 
+                         backgroundColor: item.type === 'lost' ? '#ffebee' : '#e8f5e9',
+                         color: item.type === 'lost' ? '#c62828' : '#2e7d32',
+                         padding: '0.2rem 0.6rem',
+                         borderRadius: '0.4rem',
+                         fontSize: '0.75rem',
+                         fontWeight: 'bold',
+                         textTransform: 'uppercase'
+                       }}>
+                         {item.type}
+                       </span>
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>
+                      <strong>Owner:</strong> {item.owner.email}
+                    </p>
+                    
+                    <p style={{ fontSize: '0.9rem', color: '#444' }}>{item.description}</p>
+
+                    <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                      <p style={{ margin: '0.3rem 0' }}><strong>📍</strong> {item.location}</p>
+                      <p style={{ margin: '0.3rem 0' }}><strong>📦</strong> {item.category}</p>
+                      <p style={{ margin: '0.3rem 0' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
+                      <p style={{ margin: '0.3rem 0' }}><strong>Status:</strong> {item.status}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+                      <Link href={`/items/${item.id}`} style={{ ...btnBase, background: '#e3f2fd', color: '#1565c0' }}>Details</Link>
+                      <Link href={`/edit/${item.id}`} style={{ ...btnBase, background: '#fff3cd', color: '#856404' }}>Edit</Link>
+                      <button onClick={() => handleDelete(item.id)} style={{ ...btnBase, background: '#ffebee', color: '#c62828', border: 'none', cursor: 'pointer' }}>Delete</button>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
-                    <span><strong>📍</strong> {item.location}</span>
-                    <span><strong>📦</strong> {item.category}</span>
-                    <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Link href={`/edit/${item.id}`} style={{ color: '#856404', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Edit</Link>
-                  <button onClick={() => handleDelete(item.id)} style={{ color: '#c62828', fontWeight: 'bold', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer' }}>Delete</button>
-                  <Link href={`/items/${item.id}`} style={{ color: '#024731', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Details →</Link>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} style={listCard}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.3rem' }}>
+                        <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
+                        <span style={{ fontSize: '0.75rem', color: '#666' }}>({item.owner.email})</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
+                        <span><strong>📍</strong> {item.location}</span>
+                        <span><strong>📦</strong> {item.category}</span>
+                        <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <Link href={`/edit/${item.id}`} style={{ color: '#856404', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Edit</Link>
+                      <button onClick={() => handleDelete(item.id)} style={{ color: '#c62828', fontWeight: 'bold', background: 'none', border: 'none', fontSize: '0.85rem', cursor: 'pointer' }}>Delete</button>
+                      <Link href={`/items/${item.id}`} style={{ color: '#024731', fontWeight: 'bold', textDecoration: 'none', fontSize: '0.85rem' }}>Details →</Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginTop: '3rem' }}>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  ← Previous
+                </button>
+                <span style={{ fontWeight: '600', color: '#41554d' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>

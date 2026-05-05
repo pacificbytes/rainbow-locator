@@ -25,6 +25,8 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredItems = items.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -39,6 +41,23 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status: string) => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
 
   const filteredClaims = claims.filter((claim) => {
     const query = searchQuery.toLowerCase();
@@ -65,7 +84,7 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
             {/* Status Filter */}
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => handleStatusChange(e.target.value)}
               className="themed-filter-select"
             >
               <option value="all">All Statuses</option>
@@ -80,7 +99,7 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
                 type="text"
                 placeholder="Search your reports..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="themed-search-bar"
               />
               <Search className="search-icon" />
@@ -106,7 +125,7 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
         </div>
 
         {/* ITEMS SECTION */}
-        {filteredItems.length === 0 ? (
+        {paginatedItems.length === 0 ? (
           <div className="item-card" style={{ marginBottom: '3rem' }}>
             <p className="mb-0 text-center">
               {searchQuery || statusFilter !== 'all' ? (
@@ -119,57 +138,86 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
               )}
             </p>
           </div>
-        ) : viewMode === 'grid' ? (
-          <div className="grid-3" style={{ marginBottom: '3rem' }}>
-            {filteredItems.map((item) => (
-              <div key={item.id} className="item-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                   <h3 style={{ color: '#024731', fontSize: '1.25rem' }}>{item.title}</h3>
-                   <span className={`badge-status badge-${item.status}`}>
-                     {item.status}
-                   </span>
-                </div>
-                <p style={{ fontSize: '0.9rem', color: '#444', height: '3em', overflow: 'hidden' }}>{item.description}</p>
-
-                <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '1rem' }}>
-                  <p style={{ marginBottom: '0.4rem' }}><strong>📍</strong> {item.location}</p>
-                  <p style={{ marginBottom: '1rem' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                  <Link href={`/items/${item.id}`} className="link-green">
-                    View Details →
-                  </Link>
-                  <Link href={`/edit/${item.id}`} className="btn btn-warning btn-sm d-flex align-items-center gap-1">
-                    <PencilSquare size={14} /> Edit
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
-            {filteredItems.map((item) => (
-              <div key={item.id} className="list-card">
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
-                    <span className={`badge-status badge-${item.status}`} style={{ fontSize: '0.65rem' }}>
-                      {item.status}
-                    </span>
+          <>
+            {viewMode === 'grid' ? (
+              <div className="grid-3" style={{ marginBottom: '3rem' }}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} className="item-card">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                       <h3 style={{ color: '#024731', fontSize: '1.25rem' }}>{item.title}</h3>
+                       <span className={`badge-status badge-${item.status}`}>
+                         {item.status}
+                       </span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#444', height: '3em', overflow: 'hidden' }}>{item.description}</p>
+
+                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '1rem' }}>
+                      <p style={{ marginBottom: '0.4rem' }}><strong>📍</strong> {item.location}</p>
+                      <p style={{ marginBottom: '1rem' }}><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                      <Link href={`/items/${item.id}`} className="link-green">
+                        View Details →
+                      </Link>
+                      <Link href={`/edit/${item.id}`} className="btn btn-warning btn-sm d-flex align-items-center gap-1">
+                        <PencilSquare size={14} /> Edit
+                      </Link>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
-                    <span><strong>📍</strong> {item.location}</span>
-                    <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                  <Link href={`/edit/${item.id}`} className="btn btn-outline-warning btn-sm">Edit</Link>
-                  <Link href={`/items/${item.id}`} className="link-green">Details →</Link>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
+                {paginatedItems.map((item) => (
+                  <div key={item.id} className="list-card">
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <h3 style={{ color: '#024731', fontSize: '1.1rem', margin: 0 }}>{item.title}</h3>
+                        <span className={`badge-status badge-${item.status}`} style={{ fontSize: '0.65rem' }}>
+                          {item.status}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: '#666' }}>
+                        <span><strong>📍</strong> {item.location}</span>
+                        <span><strong>📅</strong> {new Date(item.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <Link href={`/edit/${item.id}`} className="btn btn-outline-warning btn-sm">Edit</Link>
+                      <Link href={`/items/${item.id}`} className="link-green">Details →</Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* PAGINATION CONTROLS */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem' }}>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  ← Previous
+                </button>
+                <span style={{ fontWeight: '600', color: '#41554d' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-outline-success"
+                  style={{ borderRadius: '0.6rem', fontWeight: 'bold' }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* CLAIMS SECTION */}
