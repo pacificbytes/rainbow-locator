@@ -69,7 +69,7 @@ const AdminItemsClient = ({ initialItems }: AdminItemsClientProps) => {
         {/* HEADER & TOGGLE */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
           <div>
-            <h2 style={sectionTitle}>Manage All Items (Admin)</h2>
+            <h2 className="section-title" style={{ fontSize: '2rem', fontWeight: 'bold' }}>Manage All Items</h2>
             <p style={{ color: '#666', margin: 0 }}>
               Review, edit, or delete any report on the platform.
             </p>
@@ -207,12 +207,6 @@ const grid3 = {
   display: 'grid',
   gap: '1rem',
   gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-};
-
-const sectionTitle = {
-  color: '#024731',
-  marginBottom: '0.5rem',
-  fontWeight: 'bold',
 };
 
 const itemCard = {

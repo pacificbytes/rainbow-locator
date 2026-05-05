@@ -27,7 +27,6 @@ const AdminItemsPage = async () => {
           <Link href="/admin" className="link-green" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
             <ArrowLeft /> Back to Dashboard
           </Link>
-          <h2 className="section-title" style={{ fontSize: '2rem', fontWeight: 'bold' }}>Manage All Items</h2>
           <p style={{ color: '#666' }}>Review and manage every item reported on campus.</p>
         </div>
 
