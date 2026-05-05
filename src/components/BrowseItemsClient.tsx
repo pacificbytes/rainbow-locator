@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ListUl, Grid3x3GapFill } from 'react-bootstrap-icons';
+import { ListUl, Grid3x3GapFill, Search } from 'react-bootstrap-icons';
 
 type Item = {
   id: string;
@@ -23,13 +23,24 @@ interface BrowseItemsClientProps {
 
 const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = initialItems.filter((item) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      item.location.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <main style={{ fontFamily: 'system-ui', backgroundColor: '#f5f7f6', minHeight: '100vh', padding: '2rem' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         
         {/* TOP BAR WITH HEADING AND TOGGLE BUTTONS */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h2 style={sectionTitle}>Browse Items</h2>
             <p style={{ color: '#666', margin: 0 }}>
@@ -37,34 +48,50 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
             </p>
           </div>
 
-          {/* View Toggles */}
-          <div style={{ display: 'flex', gap: '0.5rem', background: '#e0e0e0', padding: '0.3rem', borderRadius: '0.5rem' }}>
-            <button
-              onClick={() => setViewMode('grid')}
-              style={viewMode === 'grid' ? activeToggle : inactiveToggle}
-              title="Grid View"
-            >
-              <Grid3x3GapFill />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              style={viewMode === 'list' ? activeToggle : inactiveToggle}
-              title="List View"
-            >
-              <ListUl size={20} />
-            </button>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Search Bar */}
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search items..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="themed-search-bar"
+              />
+              <Search className="search-icon" />
+            </div>
+
+            {/* View Toggles */}
+            <div style={{ display: 'flex', gap: '0.5rem', background: '#e0e0e0', padding: '0.3rem', borderRadius: '0.5rem' }}>
+              <button
+                onClick={() => setViewMode('grid')}
+                style={viewMode === 'grid' ? activeToggle : inactiveToggle}
+                title="Grid View"
+              >
+                <Grid3x3GapFill />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                style={viewMode === 'list' ? activeToggle : inactiveToggle}
+                title="List View"
+              >
+                <ListUl size={20} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* ITEMS LISTING */}
-        {initialItems.length === 0 ? (
+        {filteredItems.length === 0 ? (
           <div className="item-card" style={itemCard}>
-            <p className="mb-0 text-center">No items found yet.</p>
+            <p className="mb-0 text-center">
+              {searchQuery ? `No items found matching "${searchQuery}"` : 'No items found yet.'}
+            </p>
           </div>
         ) : viewMode === 'grid' ? (
           /* GRID VIEW - EXACTLY LIKE HOME PAGE RECENT LISTINGS */
           <div className="grid-3" style={grid3}>
-            {initialItems.map((item) => (
+            {filteredItems.map((item) => (
               <div key={item.id} className="item-card" style={itemCard}>
                 <h3 style={{ color: '#024731' }}>{item.title}</h3>
                 <p style={{ fontSize: '0.9rem', color: '#444' }}>{item.description}</p>
@@ -82,7 +109,7 @@ const BrowseItemsClient = ({ initialItems }: BrowseItemsClientProps) => {
         ) : (
           /* LIST VIEW - COMPACT VERSION */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {initialItems.map((item) => (
+            {filteredItems.map((item) => (
               <div key={item.id} style={listCard}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>

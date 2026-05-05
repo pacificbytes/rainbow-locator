@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Item, Prisma } from '@prisma/client';
-import { ListUl, Grid3x3GapFill, PencilSquare } from 'react-bootstrap-icons';
+import { ListUl, Grid3x3GapFill, PencilSquare, Search } from 'react-bootstrap-icons';
 
 export type MyItem = Item;
 export type MyClaim = Prisma.ClaimGetPayload<{
@@ -23,13 +23,32 @@ interface MyReportsClientProps {
 
 const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = items.filter((item) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      item.location.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query)
+    );
+  });
+
+  const filteredClaims = claims.filter((claim) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      claim.item.title.toLowerCase().includes(query) ||
+      claim.message.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <main className="main-bg section-padding">
       <div className="container-narrow">
         
         {/* HEADER & TOGGLE */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h2 className="section-title" style={{ fontSize: '2rem', fontWeight: 'bold' }}>My Reports</h2>
             <p style={{ color: '#666', margin: 0 }}>
@@ -37,35 +56,53 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
             </p>
           </div>
 
-          <div className="view-toggle-container">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              title="Grid View"
-            >
-              <Grid3x3GapFill />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-              title="List View"
-            >
-              <ListUl size={20} />
-            </button>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            {/* Search Bar */}
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search your reports..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="themed-search-bar"
+              />
+              <Search className="search-icon" />
+            </div>
+
+            <div className="view-toggle-container">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                title="Grid View"
+              >
+                <Grid3x3GapFill />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+                title="List View"
+              >
+                <ListUl size={20} />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* ITEMS SECTION */}
-        {items.length === 0 ? (
+        {filteredItems.length === 0 ? (
           <div className="item-card" style={{ marginBottom: '3rem' }}>
             <p className="mb-0 text-center">
-              You haven&apos;t reported any items yet.{' '}
-              <Link href="/report" className="link-green">Report one now.</Link>
+              {searchQuery ? `No reports found matching "${searchQuery}"` : (
+                <>
+                  You haven&apos;t reported any items yet.{' '}
+                  <Link href="/report" className="link-green">Report one now.</Link>
+                </>
+              )}
             </p>
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid-3" style={{ marginBottom: '3rem' }}>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <div key={item.id} className="item-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                    <h3 style={{ color: '#024731', fontSize: '1.25rem' }}>{item.title}</h3>
@@ -93,7 +130,7 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <div key={item.id} className="list-card">
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
@@ -122,13 +159,15 @@ const MyReportsClient = ({ items, claims }: MyReportsClientProps) => {
           Track the status of items you have claimed.
         </p>
 
-        {claims.length === 0 ? (
+        {filteredClaims.length === 0 ? (
           <div className="item-card">
-            <p className="mb-0 text-center">You haven&apos;t submitted any claims yet.</p>
+            <p className="mb-0 text-center">
+              {searchQuery ? `No claims found matching "${searchQuery}"` : "You haven't submitted any claims yet."}
+            </p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {claims.map((claim) => (
+            {filteredClaims.map((claim) => (
               <div key={claim.id} className="list-card">
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
