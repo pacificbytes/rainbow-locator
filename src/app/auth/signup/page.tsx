@@ -13,6 +13,7 @@ type SignUpForm = {
   email: string;
   password: string;
   confirmPassword: string;
+  rememberMe: boolean;
 };
 
 /** The sign up page. */
@@ -27,6 +28,7 @@ const SignUp = () => {
     confirmPassword: Yup.string()
       .required('Confirm Password is required')
       .oneOf([Yup.ref('password'), ''], 'Confirm Password does not match'),
+    rememberMe: Yup.boolean().default(false),
   });
 
   const {
@@ -137,6 +139,15 @@ const SignUp = () => {
                         className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
                       />
                       <div className="invalid-feedback">{errors.confirmPassword?.message}</div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Check 
+                        type="checkbox"
+                        {...register('rememberMe')}
+                        label="Remember me"
+                        id="rememberMe"
+                        style={{ color: '#41554d', fontWeight: '600' }}
+                      />
                     </Form.Group>
                     <Form.Group className="form-group pt-3">
                       <Row>

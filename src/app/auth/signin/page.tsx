@@ -11,13 +11,16 @@ const SignIn = () => {
     const target = e.target as typeof e.target & {
       email: { value: string };
       password: { value: string };
+      rememberMe: { checked: boolean };
     };
     const email = target.email.value;
     const password = target.password.value;
+    const rememberMe = target.rememberMe.checked;
     await signIn('credentials', {
       callbackUrl: '/',
       email,
       password,
+      rememberMe,
     });
   };
 
@@ -66,6 +69,15 @@ const SignIn = () => {
                     <Form.Group className="mb-3">
                       <Form.Label>Password</Form.Label>
                       <input name="password" type="password" className="form-control" placeholder="Enter your password" />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Check 
+                        type="checkbox"
+                        name="rememberMe"
+                        label="Remember me"
+                        className="custom-checkbox"
+                        style={{ color: '#41554d', fontWeight: '600' }}
+                      />
                     </Form.Group>
                     <Button type="submit" className="btn-gold auth-submit-btn mt-3">
                       Log In

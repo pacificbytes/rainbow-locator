@@ -21,6 +21,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'john@foo.com' },
         password: { label: 'Password', type: 'password' },
+        rememberMe: { label: 'Remember Me', type: 'boolean' },
       },
       async authorize(credentials) {
         if (
@@ -50,6 +51,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           email: user.email,
           name: user.email,
           role: user.role,
+          rememberMe: credentials.rememberMe === 'true' || credentials.rememberMe === true,
         };
       },
     }),
@@ -69,8 +71,20 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       return session;
     },
     jwt({ token, user }) {
-      if (user && 'role' in user && typeof user.role === 'string') {
-        token.role = user.role;
+      if (user) {
+        if ('role' in user && typeof user.role === 'string') {
+          token.role = user.role;
+        }
+        
+        // Handle Remember Me
+        if ('rememberMe' in user) {
+          const rememberMe = user.rememberMe as boolean;
+          // Set expiration: 30 days if rememberMe, 4 hours otherwise
+          const expirationTime = rememberMe 
+            ? Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60 
+            : Math.floor(Date.now() / 1000) + 4 * 60 * 60;
+          token.exp = expirationTime;
+        }
       }
       return token;
     },
